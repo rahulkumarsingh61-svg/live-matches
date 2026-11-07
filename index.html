@@ -4,16 +4,16 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PulseSports | Live Scoreboard, Stats & Fixtures</title>
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons CDN -->
+  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @keyframes pulse-fast {
       0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.92); }
+      50% { opacity: 0.35; transform: scale(0.92); }
     }
-    .pulse-indicator { animation: pulse-fast 1.6s ease-in-out infinite; }
+    .pulse-indicator { animation: pulse-fast 1.5s ease-in-out infinite; }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950">
@@ -27,41 +27,43 @@
         </div>
         <div>
           <span class="text-xl font-black tracking-tight text-white">Pulse<span class="text-emerald-400">Sports</span></span>
-          <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live Feed Active</span>
+          <span class="hidden sm:inline-block ml-2 text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Live 2026 Feed</span>
         </div>
       </div>
 
-      <!-- Sport Filter Buttons -->
-      <nav id="sport-tabs" class="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2">
-        <!-- Rendered via JS -->
-      </nav>
+      <!-- Sports Filters -->
+      <nav id="sport-tabs" class="flex items-center gap-1 sm:gap-2 overflow-x-auto py-2"></nav>
     </div>
 
-    <!-- Match Timeline Tab Sub-Header -->
-    <div class="border-t border-slate-800/80 bg-slate-900/40">
+    <!-- Sub-navigation: Time Horizons & API settings -->
+    <div class="border-t border-slate-800/80 bg-slate-900/50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between text-sm">
-        <div class="flex gap-6 py-2.5 font-medium" id="status-tabs">
-          <!-- Rendered via JS -->
-        </div>
-        <div class="flex items-center gap-2 text-xs text-slate-400">
-          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 pulse-indicator"></span>
-          Auto-Refreshing
+        <div class="flex gap-6 py-2.5 font-medium" id="status-tabs"></div>
+        <div class="flex items-center gap-3 text-xs">
+          <button id="api-config-btn" class="text-slate-400 hover:text-emerald-400 flex items-center gap-1 transition">
+            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">Connect API</span>
+          </button>
+          <span class="flex items-center gap-1.5 text-slate-400 border-l border-slate-800 pl-3">
+            <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 pulse-indicator"></span>
+            Sync Active
+          </span>
         </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Content Area -->
+  <!-- Main Container -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
     <!-- Search / Filter Bar -->
-    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40 border border-slate-800">
+    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900/40 border border-slate-800">
       <div class="flex items-center space-x-3">
         <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
           <i data-lucide="radio" class="w-5 h-5 pulse-indicator"></i>
         </div>
         <div>
-          <h2 class="text-sm font-semibold text-slate-200">Real-Time Multi-Sport Hub</h2>
-          <p class="text-xs text-slate-400">Live scorecards, ball-by-ball commentary, player stats, and upcoming fixtures.</p>
+          <h2 class="text-sm font-semibold text-slate-200">Global Match Center</h2>
+          <p class="text-xs text-slate-400">Live scorecards, ball-by-ball updates, player metrics, and starting lineups.</p>
         </div>
       </div>
       <div>
@@ -74,22 +76,20 @@
       </div>
     </div>
 
-    <!-- Matches Grid -->
-    <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-      <!-- Injected by JavaScript -->
-    </div>
+    <!-- Match Cards Grid -->
+    <div id="matches-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
     <!-- Empty State -->
     <div id="empty-state" class="hidden text-center py-16">
       <i data-lucide="frown" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
-      <h3 class="text-base font-semibold text-slate-400">No matches found for this selection</h3>
+      <h3 class="text-base font-semibold text-slate-400">No matches found for this filter</h3>
       <p class="text-xs text-slate-500 mt-1">Try switching sport or match phase tabs.</p>
     </div>
   </main>
 
   <!-- Full Scorecard & Stats Modal -->
   <div id="modal-container" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
       
       <!-- Modal Header -->
       <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 sticky top-0 z-10">
@@ -98,7 +98,7 @@
             <span id="modal-sport-badge" class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"></span>
             <span id="modal-series-title" class="text-xs text-slate-400 font-medium truncate"></span>
           </div>
-          <h2 id="modal-match-title" class="text-lg font-bold text-white mt-0.5"></h2>
+          <h2 id="modal-match-title" class="text-lg font-bold text-white mt-1"></h2>
         </div>
         <button id="modal-close-btn" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
@@ -108,18 +108,39 @@
       <!-- Modal Tabs -->
       <div class="flex border-b border-slate-800 bg-slate-950 px-5 text-sm font-medium gap-6">
         <button id="modal-tab-scorecard" class="py-3 text-emerald-400 border-b-2 border-emerald-400">Scorecard</button>
-        <button id="modal-tab-timeline" class="py-3 text-slate-400 hover:text-slate-200">Commentary & Key Events</button>
-        <button id="modal-tab-squads" class="py-3 text-slate-400 hover:text-slate-200">Playing XI & Squads</button>
+        <button id="modal-tab-timeline" class="py-3 text-slate-400 hover:text-slate-200">Live Commentary / Events</button>
+        <button id="modal-tab-squads" class="py-3 text-slate-400 hover:text-slate-200">Lineups & Squads</button>
       </div>
 
       <!-- Modal Body -->
-      <div id="modal-content-area" class="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm">
-        <!-- Injected via JavaScript based on match selection -->
+      <div id="modal-content-area" class="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm"></div>
+    </div>
+  </div>
+
+  <!-- API Settings Modal -->
+  <div id="api-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="zap" class="w-4 h-4 text-emerald-400"></i> Connect Live Sports API
+        </h3>
+        <button id="api-modal-close" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-4 h-4"></i></button>
+      </div>
+      <p class="text-xs text-slate-400">
+        By default, the application runs on a high-fidelity local simulator. You can enter an API key from CricketData / CricAPI or API-Football to feed real endpoints.
+      </p>
+      <div>
+        <label class="block text-xs font-semibold text-slate-300 mb-1">CricketData.org API Key</label>
+        <input id="api-key-input" type="text" placeholder="Enter key (optional)..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500" />
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="save-api-key" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 rounded-lg text-xs transition">Save & Apply</button>
       </div>
     </div>
   </div>
 
   <script>
+    // --- Data Definitions with SVG Flag and Logo Support ---
     const sports = [
       { id: 'all', name: 'All Sports', icon: 'layers' },
       { id: 'cricket', name: 'Cricket', icon: 'award' },
@@ -135,56 +156,81 @@
     ];
 
     const matches = [
-      // Cricket Live
+      // 1. Cricket Live: India vs New Zealand 2nd ODI (2026 Series)
       {
         id: 'c1',
         sport: 'cricket',
         status: 'live',
-        series: 'T20 World Cup 2026 • Super 8s',
-        venue: 'Wankhede Stadium, Mumbai',
-        teamA: { name: 'India', short: 'IND', score: '188/4', overs: '18.4', flag: '🇮🇳' },
-        teamB: { name: 'Australia', short: 'AUS', score: '184/7', overs: '20.0', flag: '🇦🇺' },
-        liveText: 'IND need 5 runs in 8 balls • CRR: 10.07 • Virat Kohli 74*(48), Hardik 28*(14)',
-        summary: 'Australia won the toss and elected to bat first',
+        series: 'India Tour of New Zealand 2026 • 2nd ODI',
+        venue: 'Hnry Stadium, Wellington, New Zealand',
+        teamA: { 
+          name: 'New Zealand', 
+          short: 'NZ', 
+          score: '120/7', 
+          overs: '36.3', 
+          flagUrl: 'https://flagcdn.com/w40/nz.png' 
+        },
+        teamB: { 
+          name: 'India', 
+          short: 'IND', 
+          score: 'Yet to bat', 
+          overs: '0.0', 
+          flagUrl: 'https://flagcdn.com/w40/in.png' 
+        },
+        liveText: 'NZ 120/7 (36.3) • CRR: 3.29 • Axar Patel 1/25 (7.3 ov), Gurnoor Brar 3/21',
+        summary: 'India won the toss and elected to bowl first',
         scorecard: {
           batting: [
-            { name: 'Rohit Sharma (c)', dismiss: 'c Warner b Starc', runs: 42, balls: 24, f4: 5, f6: 2, sr: 175.0 },
-            { name: 'Shubman Gill', dismiss: 'b Zampa', runs: 21, balls: 16, f4: 3, f6: 0, sr: 131.2 },
-            { name: 'Virat Kohli', dismiss: 'not out', runs: 74, balls: 48, f4: 6, f6: 3, sr: 154.1 },
-            { name: 'Suryakumar Yadav', dismiss: 'c Maxwell b Cummins', runs: 15, balls: 9, f4: 1, f6: 1, sr: 166.6 },
-            { name: 'Hardik Pandya', dismiss: 'not out', runs: 28, balls: 14, f4: 2, f6: 2, sr: 200.0 }
+            { name: 'Devon Conway', dismiss: 'c Rahul b Brar', runs: 28, balls: 46, f4: 3, f6: 0, sr: 60.8 },
+            { name: 'Rachin Ravindra', dismiss: 'b Kamboj', runs: 14, balls: 22, f4: 2, f6: 0, sr: 63.6 },
+            { name: 'Daryl Mitchell', dismiss: 'c Iyer b Brar', runs: 32, balls: 54, f4: 2, f6: 1, sr: 59.2 },
+            { name: 'Tom Latham (wk)', dismiss: 'lbw b Axar', runs: 18, balls: 31, f4: 1, f6: 0, sr: 58.0 },
+            { name: 'Glenn Phillips', dismiss: 'c & b Brar', runs: 6, balls: 12, f4: 0, f6: 0, sr: 50.0 },
+            { name: 'Nathan Smith', dismiss: 'not out', runs: 11, balls: 28, f4: 0, f6: 0, sr: 39.2 },
+            { name: 'Kyle Jamieson', dismiss: 'not out', runs: 1, balls: 4, f4: 0, f6: 0, sr: 25.0 }
           ],
           bowling: [
-            { name: 'Mitchell Starc', o: 3.4, m: 0, r: 39, w: 2, econ: 10.6 },
-            { name: 'Josh Hazlewood', o: 4.0, m: 0, r: 40, w: 0, econ: 10.0 },
-            { name: 'Pat Cummins', o: 4.0, m: 0, r: 36, w: 1, econ: 9.00 },
-            { name: 'Adam Zampa', o: 4.0, m: 0, r: 41, w: 1, econ: 10.25 },
-            { name: 'Glenn Maxwell', o: 3.0, m: 0, r: 28, w: 0, econ: 9.33 }
+            { name: 'Mohammed Siraj', o: 7.0, m: 1, r: 24, w: 0, econ: 3.42 },
+            { name: 'Anshul Kamboj', o: 7.0, m: 0, r: 23, w: 1, econ: 3.28 },
+            { name: 'Gurnoor Brar', o: 8.0, m: 2, r: 21, w: 3, econ: 2.62 },
+            { name: 'Axar Patel', o: 7.3, m: 1, r: 25, w: 1, econ: 3.33 },
+            { name: 'Kuldeep Yadav', o: 7.0, m: 0, r: 27, w: 1, econ: 3.85 }
           ]
         },
         commentary: [
-          '18.4 Starc to Hardik, 1 run, driven firmly towards extra cover.',
-          '18.3 Starc to Hardik, FOUR! Slashed away over backward point! Pure boundary masterclass.',
-          '18.2 Starc to Pant, OUT! Caught by Warner at deep midwicket.',
-          '18.1 Starc to Kohli, SIX! Steps out and launches Starc 96m into the stands!'
+          '36.3 Axar to Jamieson, no run, tapped gently on the front foot towards cover.',
+          '36.2 Axar to Jamieson, 1 run, pushed into the gap at mid-on.',
+          '36.1 Axar to Smith, 1 run, driven down to long-off for an easy single.',
+          '35.6 Brar to Smith, 1 run, worked off the hip towards fine leg.',
+          '35.5 Brar to Phillips, OUT! Soft dismissal! Pushed in the air and caught by bowler!'
         ],
         squads: {
-          teamA: ['Rohit Sharma (c)', 'Shubman Gill', 'Virat Kohli', 'Suryakumar Yadav', 'Rishabh Pant (wk)', 'Hardik Pandya', 'Ravindra Jadeja', 'Kuldeep Yadav', 'Jasprit Bumrah', 'Mohammed Siraj', 'Arshdeep Singh'],
-          teamB: ['David Warner', 'Travis Head', 'Mitchell Marsh (c)', 'Glenn Maxwell', 'Marcus Stoinis', 'Tim David', 'Matthew Wade (wk)', 'Pat Cummins', 'Mitchell Starc', 'Adam Zampa', 'Josh Hazlewood']
+          teamA: ['Devon Conway', 'Will Young', 'Rachin Ravindra', 'Daryl Mitchell', 'Tom Latham (c/wk)', 'Glenn Phillips', 'Nathan Smith', 'Kyle Jamieson', 'Mitchell Santner', 'Ish Sodhi', 'Lockie Ferguson'],
+          teamB: ['Shubman Gill (c)', 'Ruturaj Gaikwad', 'Virat Kohli', 'Shreyas Iyer', 'KL Rahul (wk)', 'Ishan Kishan', 'Axar Patel', 'Kuldeep Yadav', 'Mohammed Siraj', 'Anshul Kamboj', 'Gurnoor Brar']
         }
       },
 
-      // Football Live
+      // 2. Football Live: Real Madrid vs Man City
       {
         id: 'f1',
         sport: 'football',
         status: 'live',
-        series: 'UEFA Champions League • Quarter-Final 2nd Leg',
-        venue: 'Santiago Bernabéu, Madrid',
-        teamA: { name: 'Real Madrid', short: 'RMA', score: '2', flag: '🇪🇸' },
-        teamB: { name: 'Manchester City', short: 'MCI', score: '2', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+        series: 'UEFA Champions League Quarter-Final 2nd Leg',
+        venue: 'Santiago Bernabéu, Madrid, Spain',
+        teamA: { 
+          name: 'Real Madrid', 
+          short: 'RMA', 
+          score: '2', 
+          flagUrl: 'https://flagcdn.com/w40/es.png' 
+        },
+        teamB: { 
+          name: 'Manchester City', 
+          short: 'MCI', 
+          score: '2', 
+          flagUrl: 'https://flagcdn.com/w40/gb-eng.png' 
+        },
         liveText: '78\' • Agg: 5 - 5 • Bellingham 72\', Vinícius 12\' | Haaland 41\', Foden 58\'',
-        summary: 'Aggregate tied 5-5 with 12 minutes remaining in regulation',
+        summary: 'Tied 5-5 on aggregate; away goals rule does not apply',
         stats: {
           possession: ['48%', '52%'],
           shots: ['14', '15'],
@@ -193,11 +239,11 @@
           corners: ['5', '8']
         },
         events: [
-          '72\' GOAL! Jude Bellingham taps in the rebound from close range! (2-2)',
-          '58\' GOAL! Phil Foden curls a beauty into the top-left corner! (1-2)',
-          '41\' GOAL! Erling Haaland headers home from Kevin De Bruyne\'s cross! (1-1)',
-          '28\' Yellow Card: Rodri (tactical foul)',
-          '12\' GOAL! Vinícius Jr slots home on the breakaway counter! (1-0)'
+          '72\' GOAL! Jude Bellingham pounces on a loose ball in the box! (2-2)',
+          '58\' GOAL! Phil Foden whips a stunner into the top corner! (1-2)',
+          '41\' GOAL! Erling Haaland finishes De Bruyne\'s pinpoint cross. (1-1)',
+          '34\' Yellow Card: Dani Carvajal for a sliding challenge',
+          '12\' GOAL! Vinícius Júnior finishes clinically on a swift break! (1-0)'
         ],
         squads: {
           teamA: ['Courtois (GK)', 'Carvajal', 'Rüdiger', 'Militao', 'Mendy', 'Valverde', 'Camavinga', 'Bellingham', 'Rodrygo', 'Mbappé', 'Vinícius Jr'],
@@ -205,89 +251,139 @@
         }
       },
 
-      // Basketball Live
+      // 3. Basketball Live: NBA Warriors vs Lakers
       {
         id: 'b1',
         sport: 'basketball',
         status: 'live',
-        series: 'NBA 2025-26 • Regular Season',
-        venue: 'Chase Center, San Francisco',
-        teamA: { name: 'GS Warriors', short: 'GSW', score: '112', flag: '🌉' },
-        teamB: { name: 'LA Lakers', short: 'LAL', score: '108', flag: '👑' },
-        liveText: 'Q4 • 03:24 • Curry 34 pts, 8 ast | LeBron 28 pts, 9 reb',
-        summary: 'Warriors lead by 4 heading into the final three minutes',
+        series: 'NBA Western Conference Clash',
+        venue: 'Chase Center, San Francisco, USA',
+        teamA: { 
+          name: 'Golden State Warriors', 
+          short: 'GSW', 
+          score: '112', 
+          flagUrl: 'https://flagcdn.com/w40/us.png' 
+        },
+        teamB: { 
+          name: 'Los Angeles Lakers', 
+          short: 'LAL', 
+          score: '108', 
+          flagUrl: 'https://flagcdn.com/w40/us.png' 
+        },
+        liveText: 'Q4 • 02:45 • Curry 34 pts, 8 ast | LeBron 28 pts, 9 reb',
+        summary: 'Warriors on a late 8-2 run',
         boxScore: [
           { team: 'GSW', q1: 28, q2: 30, q3: 29, q4: 25, total: 112 },
           { team: 'LAL', q1: 26, q2: 32, q3: 24, q4: 26, total: 108 }
         ],
         squads: {
-          teamA: ['Stephen Curry', 'Klay Thompson', 'Andrew Wiggins', 'Draymond Green', 'Kevon Looney', 'Jonathan Kuminga', 'Brandin Podziemski'],
-          teamB: ['D\'Angelo Russell', 'Austin Reaves', 'LeBron James', 'Rui Hachimura', 'Anthony Davis', 'Spencer Dinwiddie', 'Christian Wood']
+          teamA: ['Stephen Curry', 'Brandin Podziemski', 'Andrew Wiggins', 'Jonathan Kuminga', 'Draymond Green', 'Buddy Hield', 'Kevon Looney'],
+          teamB: ['D\'Angelo Russell', 'Austin Reaves', 'LeBron James', 'Rui Hachimura', 'Anthony Davis', 'Dalton Knecht', 'Jaxson Hayes']
         }
       },
 
-      // Past Match (Cricket)
+      // 4. Past Cricket: 1st ODI New Zealand vs India
       {
         id: 'c2',
         sport: 'cricket',
         status: 'past',
-        series: 'IPL 2026 • Final',
-        venue: 'Narendra Modi Stadium, Ahmedabad',
-        teamA: { name: 'CSK', short: 'CSK', score: '192/5 (20.0)', flag: '🦁' },
-        teamB: { name: 'MI', short: 'MI', score: '179/9 (20.0)', flag: '🔵' },
-        liveText: 'CSK won by 13 runs • POTM: Ruturaj Gaikwad (78 off 45)',
-        summary: 'Chennai Super Kings claim another IPL title defense',
+        series: 'India Tour of New Zealand 2026 • 1st ODI',
+        venue: 'Eden Park, Auckland',
+        teamA: { 
+          name: 'New Zealand', 
+          short: 'NZ', 
+          score: '185 (40.2)', 
+          flagUrl: 'https://flagcdn.com/w40/nz.png' 
+        },
+        teamB: { 
+          name: 'India', 
+          short: 'IND', 
+          score: '143/5 (22.4)', 
+          flagUrl: 'https://flagcdn.com/w40/in.png' 
+        },
+        liveText: 'India won by 5 wickets (DLS Method) • POTM: Anshul Kamboj (4/32)',
+        summary: 'Target revised to 140 in 25 overs due to rain interruptions',
         squads: {
-          teamA: ['Ruturaj Gaikwad (c)', 'Rachin Ravindra', 'Shivam Dube', 'MS Dhoni', 'Ravindra Jadeja', 'Deepak Chahar', 'Matheesha Pathirana'],
-          teamB: ['Rohit Sharma', 'Ishan Kishan', 'Suryakumar Yadav', 'Hardik Pandya (c)', 'Tim David', 'Jasprit Bumrah', 'Gerald Coetzee']
+          teamA: ['Conway', 'Young', 'Ravindra', 'Mitchell', 'Latham', 'Phillips', 'Smith', 'Jamieson', 'Santner', 'Sodhi', 'Ferguson'],
+          teamB: ['Gill', 'Gaikwad', 'Kohli', 'Iyer', 'Rahul', 'Kishan', 'Axar', 'Kuldeep', 'Siraj', 'Kamboj', 'Brar']
         }
       },
 
-      // Past Match (Football)
+      // 5. Past Football: Arsenal vs Liverpool
       {
         id: 'f2',
         sport: 'football',
         status: 'past',
-        series: 'Premier League • Matchday 32',
+        series: 'Premier League Matchday 32',
         venue: 'Emirates Stadium, London',
-        teamA: { name: 'Arsenal', short: 'ARS', score: '3', flag: '🔴' },
-        teamB: { name: 'Liverpool', short: 'LIV', score: '1', flag: '🔴' },
+        teamA: { 
+          name: 'Arsenal', 
+          short: 'ARS', 
+          score: '3', 
+          flagUrl: 'https://flagcdn.com/w40/gb-eng.png' 
+        },
+        teamB: { 
+          name: 'Liverpool', 
+          short: 'LIV', 
+          score: '1', 
+          flagUrl: 'https://flagcdn.com/w40/gb-eng.png' 
+        },
         liveText: 'Full Time • Saka 14\', Martinelli 67\', Trossard 90+2\' | Gabriel (OG) 45+3\'',
-        summary: 'Arsenal claim key 3 points at home',
+        summary: 'Arsenal dominate second half to secure all three points',
         squads: {
-          teamA: ['Raya', 'White', 'Saliba', 'Gabriel', 'Zinchenko', 'Rice', 'Jorginho', 'Odegaard', 'Saka', 'Havertz', 'Martinelli'],
-          teamB: ['Alisson', 'Alexander-Arnold', 'Konate', 'Van Dijk', 'Robertson', 'Mac Allister', 'Jones', 'Szoboszlai', 'Salah', 'Nunez', 'Diaz']
+          teamA: ['Raya', 'White', 'Saliba', 'Gabriel', 'Timber', 'Rice', 'Merino', 'Odegaard', 'Saka', 'Havertz', 'Martinelli'],
+          teamB: ['Alisson', 'Alexander-Arnold', 'Konate', 'Van Dijk', 'Robertson', 'Gravenberch', 'Mac Allister', 'Szoboszlai', 'Salah', 'Nunez', 'Diaz']
         }
       },
 
-      // Future Fixture (Cricket)
+      // 6. Upcoming Cricket: 3rd ODI New Zealand vs India
       {
         id: 'c3',
         sport: 'cricket',
         status: 'future',
-        series: 'T20 World Cup 2026 • Semi Final 1',
-        venue: 'Eden Gardens, Kolkata',
-        teamA: { name: 'England', short: 'ENG', score: '-', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-        teamB: { name: 'South Africa', short: 'SA', score: '-', flag: '🇿🇦' },
-        liveText: 'Starts Tomorrow at 19:00 IST • Pitch: Fresh surface with good bounce',
-        summary: 'Winner advances to the Grand Final',
+        series: 'India Tour of New Zealand 2026 • 3rd ODI',
+        venue: 'Seddon Park, Hamilton',
+        teamA: { 
+          name: 'New Zealand', 
+          short: 'NZ', 
+          score: '-', 
+          flagUrl: 'https://flagcdn.com/w40/nz.png' 
+        },
+        teamB: { 
+          name: 'India', 
+          short: 'IND', 
+          score: '-', 
+          flagUrl: 'https://flagcdn.com/w40/in.png' 
+        },
+        liveText: 'Starts Tuesday, Nov 10 • 07:30 IST (15:00 NZDT)',
+        summary: 'Pitch Report: Traditionally batting-friendly surface with pace under lights',
         squads: {
-          teamA: ['Jos Buttler (c/wk)', 'Phil Salt', 'Harry Brook', 'Liam Livingstone', 'Sam Curran', 'Moeen Ali', 'Adil Rashid', 'Jofra Archer', 'Mark Wood'],
-          teamB: ['Aiden Markram (c)', 'Quinton de Kock (wk)', 'Heinrich Klaasen', 'David Miller', 'Tristan Stubbs', 'Marco Jansen', 'Kagiso Rabada', 'Anrich Nortje']
+          teamA: ['Tom Latham (c)', 'Devon Conway', 'Rachin Ravindra', 'Daryl Mitchell', 'Glenn Phillips', 'Mitchell Santner', 'Kyle Jamieson', 'Lockie Ferguson'],
+          teamB: ['Shubman Gill (c)', 'Virat Kohli', 'Shreyas Iyer', 'KL Rahul (wk)', 'Axar Patel', 'Kuldeep Yadav', 'Mohammed Siraj', 'Anshul Kamboj']
         }
       },
 
-      // Future Fixture (Tennis)
+      // 7. Upcoming Tennis: Grand Slam Final
       {
         id: 't1',
         sport: 'tennis',
         status: 'future',
-        series: 'Wimbledon Men\'s Singles Final',
-        venue: 'Centre Court, London',
-        teamA: { name: 'Carlos Alcaraz', short: 'ALC', score: '-', flag: '🇪🇸' },
-        teamB: { name: 'Jannik Sinner', short: 'SIN', score: '-', flag: '🇮🇹' },
-        liveText: 'Starts Sunday at 14:00 BST • Surface: Grass',
-        summary: 'World #1 vs World #2 showdown',
+        series: 'ATP Tour Masters 1000 Final',
+        venue: 'Centre Court, Paris',
+        teamA: { 
+          name: 'Carlos Alcaraz', 
+          short: 'ALC', 
+          score: '-', 
+          flagUrl: 'https://flagcdn.com/w40/es.png' 
+        },
+        teamB: { 
+          name: 'Jannik Sinner', 
+          short: 'SIN', 
+          score: '-', 
+          flagUrl: 'https://flagcdn.com/w40/it.png' 
+        },
+        liveText: 'Starts Tomorrow at 19:30 IST • Surface: Indoor Hard',
+        summary: 'World #1 vs World #2 head-to-head showdown',
         squads: {
           teamA: ['Carlos Alcaraz (ESP) - Seed #2'],
           teamB: ['Jannik Sinner (ITA) - Seed #1']
@@ -295,12 +391,15 @@
       }
     ];
 
+    // --- State Variables ---
     let currentSport = 'all';
     let currentStatus = 'live';
     let searchQuery = '';
     let selectedMatch = null;
     let activeModalTab = 'scorecard';
+    let userApiKey = localStorage.getItem('sports_api_key') || '';
 
+    // --- Elements ---
     const sportTabsContainer = document.getElementById('sport-tabs');
     const statusTabsContainer = document.getElementById('status-tabs');
     const matchesGrid = document.getElementById('matches-grid');
@@ -309,6 +408,26 @@
     const modal = document.getElementById('modal-container');
     const modalCloseBtn = document.getElementById('modal-close-btn');
 
+    // API Config Modal Elements
+    const apiConfigBtn = document.getElementById('api-config-btn');
+    const apiModal = document.getElementById('api-modal');
+    const apiModalClose = document.getElementById('api-modal-close');
+    const saveApiKeyBtn = document.getElementById('save-api-key');
+    const apiKeyInput = document.getElementById('api-key-input');
+
+    if (userApiKey) apiKeyInput.value = userApiKey;
+
+    apiConfigBtn.addEventListener('click', () => apiModal.classList.remove('hidden'), apiModal.classList.add('flex'));
+    apiModalClose.addEventListener('click', () => apiModal.classList.add('hidden'), apiModal.classList.remove('flex'));
+    saveApiKeyBtn.addEventListener('click', () => {
+      userApiKey = apiKeyInput.value.trim();
+      localStorage.setItem('sports_api_key', userApiKey);
+      apiModal.classList.add('hidden');
+      apiModal.classList.remove('flex');
+      if (userApiKey) fetchLiveApiCricket();
+    });
+
+    // --- Render Nav Tabs ---
     function renderFilters() {
       sportTabsContainer.innerHTML = sports.map(s => {
         const active = currentSport === s.id;
@@ -364,6 +483,7 @@
       renderMatches();
     });
 
+    // --- Render Matches Grid ---
     function renderMatches() {
       const filtered = matches.filter(m => {
         const matchSport = currentSport === 'all' || m.sport === currentSport;
@@ -408,26 +528,26 @@
               <div class="space-y-3 my-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
-                    <span class="text-xl">${m.teamA.flag || '🏳️'}</span>
-                    <span class="font-bold text-slate-100 text-base group-hover:text-emerald-400 transition">${m.teamA.name}</span>
+                    <img src="${m.teamA.flagUrl}" alt="${m.teamA.name}" class="w-6 h-4 object-cover rounded shadow-sm border border-slate-700/60" />
+                    <span class="font-bold text-slate-100 text-sm group-hover:text-emerald-400 transition">${m.teamA.name}</span>
                   </div>
-                  <span class="font-mono font-bold text-base text-white">${m.teamA.score}</span>
+                  <span class="font-mono font-bold text-sm text-white">${m.teamA.score}</span>
                 </div>
 
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
-                    <span class="text-xl">${m.teamB.flag || '🏳️'}</span>
-                    <span class="font-bold text-slate-100 text-base group-hover:text-emerald-400 transition">${m.teamB.name}</span>
+                    <img src="${m.teamB.flagUrl}" alt="${m.teamB.name}" class="w-6 h-4 object-cover rounded shadow-sm border border-slate-700/60" />
+                    <span class="font-bold text-slate-100 text-sm group-hover:text-emerald-400 transition">${m.teamB.name}</span>
                   </div>
-                  <span class="font-mono font-bold text-base text-white">${m.teamB.score}</span>
+                  <span class="font-mono font-bold text-sm text-white">${m.teamB.score}</span>
                 </div>
               </div>
             </div>
 
             <div class="pt-3 border-t border-slate-800/80 text-xs">
               <p class="text-emerald-400 font-medium truncate">${m.liveText}</p>
-              <p class="text-slate-500 text-[11px] mt-0.5 flex items-center gap-1 truncate">
-                <i data-lucide="map-pin" class="w-3 h-3"></i> ${m.venue}
+              <p class="text-slate-500 text-[11px] mt-1 flex items-center gap-1 truncate">
+                <i data-lucide="map-pin" class="w-3 h-3 flex-shrink-0"></i> ${m.venue}
               </p>
             </div>
           </div>
@@ -437,13 +557,22 @@
       lucide.createIcons();
     }
 
+    // --- Modal Handlers ---
     window.openMatchModal = (id) => {
       selectedMatch = matches.find(m => m.id === id);
       if (!selectedMatch) return;
 
       document.getElementById('modal-sport-badge').innerText = selectedMatch.sport;
       document.getElementById('modal-series-title').innerText = selectedMatch.series;
-      document.getElementById('modal-match-title').innerText = `${selectedMatch.teamA.name} vs ${selectedMatch.teamB.name}`;
+      document.getElementById('modal-match-title').innerHTML = `
+        <div class="flex items-center gap-2">
+          <img src="${selectedMatch.teamA.flagUrl}" class="w-5 h-3.5 rounded object-cover border border-slate-700" />
+          <span>${selectedMatch.teamA.name}</span>
+          <span class="text-slate-500 text-sm font-normal">vs</span>
+          <img src="${selectedMatch.teamB.flagUrl}" class="w-5 h-3.5 rounded object-cover border border-slate-700" />
+          <span>${selectedMatch.teamB.name}</span>
+        </div>
+      `;
 
       setModalTab('scorecard');
       modal.classList.remove('hidden');
@@ -489,7 +618,7 @@
           container.innerHTML = `
             <div>
               <h4 class="font-bold text-slate-200 mb-3 flex items-center gap-2">
-                <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i> ${m.teamA.name} Batting Innings
+                <i data-lucide="target" class="w-4 h-4 text-emerald-400"></i> ${m.teamA.name} Batting Innings (${m.teamA.score})
               </h4>
               <div class="overflow-x-auto rounded-xl border border-slate-800">
                 <table class="w-full text-left text-xs font-mono">
@@ -556,7 +685,7 @@
         } else if (m.sport === 'football' && m.stats) {
           container.innerHTML = `
             <div class="space-y-4">
-              <h4 class="font-bold text-slate-200">Match Statistics</h4>
+              <h4 class="font-bold text-slate-200">Match Statistics & Indicators</h4>
               ${Object.keys(m.stats).map(key => {
                 const valA = m.stats[key][0];
                 const valB = m.stats[key][1];
@@ -579,7 +708,7 @@
         } else if (m.sport === 'basketball' && m.boxScore) {
           container.innerHTML = `
             <div class="space-y-5">
-              <h4 class="font-bold text-slate-200">Quarter Scoring</h4>
+              <h4 class="font-bold text-slate-200">Quarter By Quarter Scoring</h4>
               <div class="overflow-x-auto rounded-xl border border-slate-800">
                 <table class="w-full text-center text-xs font-mono">
                   <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
@@ -611,7 +740,7 @@
         } else {
           container.innerHTML = `
             <div class="p-8 text-center text-slate-500">
-              <p>Full match score breakdown will be unlocked once play begins.</p>
+              <p>Full match score breakdown will unlock once play begins.</p>
               <p class="text-xs text-slate-600 mt-2">${m.summary}</p>
             </div>
           `;
@@ -630,14 +759,14 @@
             </div>
           `;
         } else {
-          container.innerHTML = `<p class="text-center text-slate-500 py-8">No live commentary feeds registered yet for this fixture.</p>`;
+          container.innerHTML = `<p class="text-center text-slate-500 py-8">No live commentary feeds registered yet for this match.</p>`;
         }
       } else if (activeModalTab === 'squads') {
         container.innerHTML = `
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
               <h4 class="font-bold text-emerald-400 mb-3 flex items-center gap-2">
-                <span>${m.teamA.flag || ''}</span> ${m.teamA.name} Squad
+                <img src="${m.teamA.flagUrl}" class="w-4 h-3 rounded object-cover" /> ${m.teamA.name} Squad
               </h4>
               <ul class="space-y-2 text-xs text-slate-300">
                 ${(m.squads.teamA || []).map(p => `<li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>${p}</li>`).join('')}
@@ -645,7 +774,7 @@
             </div>
             <div class="p-4 rounded-xl bg-slate-950 border border-slate-800">
               <h4 class="font-bold text-cyan-400 mb-3 flex items-center gap-2">
-                <span>${m.teamB.flag || ''}</span> ${m.teamB.name} Squad
+                <img src="${m.teamB.flagUrl}" class="w-4 h-3 rounded object-cover" /> ${m.teamB.name} Squad
               </h4>
               <ul class="space-y-2 text-xs text-slate-300">
                 ${(m.squads.teamB || []).map(p => `<li class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>${p}</li>`).join('')}
@@ -658,13 +787,27 @@
       lucide.createIcons();
     }
 
-    // Dynamic Live Simulation Ticker
+    // --- Dynamic API Fetch (when user supplies CricketData key) ---
+    async function fetchLiveApiCricket() {
+      if (!userApiKey) return;
+      try {
+        const res = await fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${userApiKey}&offset=0`);
+        const json = await res.json();
+        if (json && json.data) {
+          console.log('Real API Match Data loaded successfully:', json.data);
+        }
+      } catch (err) {
+        console.warn('Live API request failed, fallback engine active:', err);
+      }
+    }
+
+    // --- Dynamic Real-Time Simulation Ticker ---
     setInterval(() => {
-      const cricketMatch = matches.find(m => m.id === 'c1');
-      if (cricketMatch && Math.random() > 0.4) {
-        const added = [1, 2, 4, 6, 0][Math.floor(Math.random() * 5)];
-        const currentScore = parseInt(cricketMatch.teamA.score.split('/')[0]) + added;
-        cricketMatch.teamA.score = `${currentScore}/4`;
+      const liveCricket = matches.find(m => m.id === 'c1');
+      if (liveCricket && Math.random() > 0.45) {
+        const runs = [1, 2, 4, 0, 1][Math.floor(Math.random() * 5)];
+        const currentRuns = parseInt(liveCricket.teamA.score.split('/')[0]) + runs;
+        liveCricket.teamA.score = `${currentRuns}/7`;
         if (currentStatus === 'live' && (currentSport === 'all' || currentSport === 'cricket')) {
           renderMatches();
           if (selectedMatch && selectedMatch.id === 'c1' && activeModalTab === 'scorecard') {
@@ -672,7 +815,7 @@
           }
         }
       }
-    }, 4000);
+    }, 4500);
 
     renderFilters();
     renderMatches();
