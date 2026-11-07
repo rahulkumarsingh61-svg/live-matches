@@ -1,0 +1,1808 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Trophy,
+  Flame,
+  Calendar,
+  History,
+  Clock,
+  Search,
+  Filter,
+  Users,
+  Star,
+  ChevronRight,
+  TrendingUp,
+  Activity,
+  PlayCircle,
+  Radio,
+  RefreshCw,
+  Award,
+  ChevronDown,
+  Info,
+  MapPin,
+  Shield,
+  Zap,
+  SlidersHorizontal,
+  X,
+  UserCheck
+} from 'lucide-react';
+
+// ==========================================
+// MOCK DATA STORE (Cricket, Football, Basketball, Tennis)
+// ==========================================
+
+const INITIAL_MATCHES = [
+  // --- CRICKET LIVE ---
+  {
+    id: 'c-live-1',
+    sport: 'cricket',
+    status: 'live',
+    league: 'T20 World Cup 2026',
+    stage: 'Super 8s',
+    venue: 'Wankhede Stadium, Mumbai',
+    date: 'Today',
+    time: 'Live',
+    isLive: true,
+    team1: {
+      name: 'India',
+      short: 'IND',
+      score: '188/4',
+      overs: '18.4',
+      flag: '🇮🇳',
+      color: '#1e40af'
+    },
+    team2: {
+      name: 'Australia',
+      short: 'AUS',
+      score: '184/7',
+      overs: '20.0',
+      flag: '🇦🇺',
+      color: '#ca8a04'
+    },
+    situation: 'India need 5 runs in 8 balls to win',
+    currentInnings: 2,
+    toss: 'Australia won the toss and elected to bat first',
+    manOfMatch: null,
+    recentBalls: ['1', '4', 'W', '6', '2', '1'],
+    currentBatters: [
+      { name: 'Virat Kohli', runs: 74, balls: 48, fours: 6, sixes: 3, sr: '154.1', onStrike: true },
+      { name: 'Hardik Pandya', runs: 28, balls: 14, fours: 2, sixes: 2, sr: '200.0', onStrike: false }
+    ],
+    currentBowler: { name: 'Mitchell Starc', overs: '3.4', maidens: 0, runs: 39, wickets: 2, econ: '10.6' },
+    scorecard: {
+      team1Batting: [
+        { name: 'Rohit Sharma (c)', dismissal: 'c Warner b Starc', runs: 42, balls: 24, fours: 5, sixes: 2, sr: '175.0' },
+        { name: 'Shubman Gill', dismissal: 'b Zampa', runs: 21, balls: 16, fours: 3, sixes: 0, sr: '131.2' },
+        { name: 'Virat Kohli', dismissal: 'not out', runs: 74, balls: 48, fours: 6, sixes: 3, sr: '154.1' },
+        { name: 'Suryakumar Yadav', dismissal: 'c Maxwell b Cummins', runs: 15, balls: 9, fours: 1, sixes: 1, sr: '166.6' },
+        { name: 'Hardik Pandya', dismissal: 'not out', runs: 28, balls: 14, fours: 2, sixes: 2, sr: '200.0' },
+      ],
+      team2Bowling: [
+        { name: 'Mitchell Starc', overs: '3.4', maidens: 0, runs: 39, wickets: 2, econ: '10.6' },
+        { name: 'Pat Cummins', overs: '4.0', maidens: 0, runs: 36, wickets: 1, econ: '9.00' },
+        { name: 'Adam Zampa', overs: '4.0', maidens: 0, runs: 41, wickets: 1, econ: '10.25' },
+        { name: 'Glenn Maxwell', overs: '3.0', maidens: 0, runs: 28, wickets: 0, econ: '9.33' },
+        { name: 'Josh Hazlewood', overs: '4.0', maidens: 0, runs: 40, wickets: 0, econ: '10.00' },
+      ],
+      fallOfWickets: ['48/1 (Gill, 4.3)', '79/2 (Rohit, 8.1)', '125/3 (Surya, 13.2)']
+    },
+    squads: {
+      team1: [
+        { name: 'Rohit Sharma', role: 'Captain / Batter', isXI: true },
+        { name: 'Shubman Gill', role: 'Batter', isXI: true },
+        { name: 'Virat Kohli', role: 'Batter', isXI: true },
+        { name: 'Suryakumar Yadav', role: 'Batter', isXI: true },
+        { name: 'Rishabh Pant', role: 'Wicket-Keeper', isXI: true },
+        { name: 'Hardik Pandya', role: 'All-Rounder', isXI: true },
+        { name: 'Ravindra Jadeja', role: 'All-Rounder', isXI: true },
+        { name: 'Kuldeep Yadav', role: 'Bowler', isXI: true },
+        { name: 'Jasprit Bumrah', role: 'Bowler', isXI: true },
+        { name: 'Mohammed Siraj', role: 'Bowler', isXI: true },
+        { name: 'Arshdeep Singh', role: 'Bowler', isXI: true },
+        { name: 'Axar Patel', role: 'Bench / Sub', isXI: false },
+        { name: 'Sanju Samson', role: 'Bench / Sub', isXI: false }
+      ],
+      team2: [
+        { name: 'Mitchell Marsh', role: 'Captain / All-Rounder', isXI: true },
+        { name: 'David Warner', role: 'Batter', isXI: true },
+        { name: 'Travis Head', role: 'Batter', isXI: true },
+        { name: 'Glenn Maxwell', role: 'All-Rounder', isXI: true },
+        { name: 'Marcus Stoinis', role: 'All-Rounder', isXI: true },
+        { name: 'Matthew Wade', role: 'Wicket-Keeper', isXI: true },
+        { name: 'Pat Cummins', role: 'Bowler', isXI: true },
+        { name: 'Mitchell Starc', role: 'Bowler', isXI: true },
+        { name: 'Adam Zampa', role: 'Bowler', isXI: true },
+        { name: 'Josh Hazlewood', role: 'Bowler', isXI: true },
+        { name: 'Tim David', role: 'Batter', isXI: true },
+        { name: 'Ashton Agar', role: 'Bench / Sub', isXI: false }
+      ]
+    },
+    commentary: [
+      { over: '18.4', ball: '18.4', text: 'Starc to Pandya, 1 run, driven firmly towards extra cover.' },
+      { over: '18.3', ball: '18.3', text: 'FOUR! Slashed away over backward point! Pure boundary masterclass from Pandya!' },
+      { over: '18.2', ball: '18.2', text: 'OUT! Pant holes out at midwicket, caught by Warner! Big wicket for Australia.' },
+      { over: '18.1', ball: '18.1', text: 'SIX! Kohli steps out and launches Starc 96 meters into the Grand Stand!' }
+    ]
+  },
+
+  // --- FOOTBALL LIVE ---
+  {
+    id: 'f-live-1',
+    sport: 'football',
+    status: 'live',
+    league: 'UEFA Champions League',
+    stage: 'Quarter-Final 2nd Leg',
+    venue: 'Santiago Bernabéu, Madrid',
+    date: 'Today',
+    time: '78\'',
+    isLive: true,
+    team1: {
+      name: 'Real Madrid',
+      short: 'RMA',
+      score: '2',
+      flag: '🇪🇸',
+      color: '#2563eb'
+    },
+    team2: {
+      name: 'Manchester City',
+      short: 'MCI',
+      score: '2',
+      flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      color: '#0284c7'
+    },
+    situation: 'Aggregate: 5 - 5 (Intense pressure in Madrid)',
+    timeline: [
+      { min: "12'", player: 'Vinícius Jr.', team: 'RMA', type: 'goal', detail: 'Assist by Bellingham' },
+      { min: "28'", player: 'Rodri', team: 'MCI', type: 'yellow_card', detail: 'Tactical foul' },
+      { min: "41'", player: 'Erling Haaland', team: 'MCI', type: 'goal', detail: 'Header from De Bruyne cross' },
+      { min: "58'", player: 'Phil Foden', team: 'MCI', type: 'goal', detail: 'Curler outside 18-yard box' },
+      { min: "72'", player: 'Jude Bellingham', team: 'RMA', type: 'goal', detail: 'Rebound tap-in' }
+    ],
+    stats: {
+      possession: ['48%', '52%'],
+      shotsOnTarget: [6, 7],
+      totalShots: [14, 15],
+      corners: [5, 8],
+      fouls: [10, 11],
+      xG: ['1.84', '1.92']
+    },
+    squads: {
+      team1: [
+        { name: 'Thibaut Courtois', pos: 'GK', rating: 7.4, isXI: true },
+        { name: 'Dani Carvajal', pos: 'RB', rating: 6.9, isXI: true },
+        { name: 'Antonio Rüdiger', pos: 'CB', rating: 7.2, isXI: true },
+        { name: 'Éder Militão', pos: 'CB', rating: 7.0, isXI: true },
+        { name: 'Ferland Mendy', pos: 'LB', rating: 6.8, isXI: true },
+        { name: 'Federico Valverde', pos: 'CM', rating: 7.8, isXI: true },
+        { name: 'Eduardo Camavinga', pos: 'CDM', rating: 7.5, isXI: true },
+        { name: 'Jude Bellingham', pos: 'CAM', rating: 8.4, isXI: true, captain: true },
+        { name: 'Rodrygo', pos: 'RW', rating: 7.1, isXI: true },
+        { name: 'Kylian Mbappé', pos: 'ST', rating: 7.6, isXI: true },
+        { name: 'Vinícius Jr.', pos: 'LW', rating: 8.6, isXI: true },
+        { name: 'Luka Modrić', pos: 'Sub', rating: 6.5, isXI: false },
+        { name: 'Brahim Díaz', pos: 'Sub', rating: 6.6, isXI: false }
+      ],
+      team2: [
+        { name: 'Ederson', pos: 'GK', rating: 7.0, isXI: true },
+        { name: 'Kyle Walker', pos: 'RB', rating: 6.8, isXI: true },
+        { name: 'Rúben Dias', pos: 'CB', rating: 7.3, isXI: true },
+        { name: 'Manuel Akanji', pos: 'CB', rating: 6.9, isXI: true },
+        { name: 'Josko Gvardiol', pos: 'LB', rating: 7.5, isXI: true },
+        { name: 'Rodri', pos: 'CDM', rating: 8.1, isXI: true },
+        { name: 'Kevin De Bruyne', pos: 'CAM', rating: 8.8, isXI: true, captain: true },
+        { name: 'Bernardo Silva', pos: 'RW', rating: 7.6, isXI: true },
+        { name: 'Phil Foden', pos: 'LW', rating: 8.5, isXI: true },
+        { name: 'Erling Haaland', pos: 'ST', rating: 8.2, isXI: true },
+        { name: 'Jérémy Doku', pos: 'RW', rating: 7.2, isXI: true },
+        { name: 'Jack Grealish', pos: 'Sub', rating: 6.5, isXI: false }
+      ]
+    }
+  },
+
+  // --- BASKETBALL LIVE ---
+  {
+    id: 'b-live-1',
+    sport: 'basketball',
+    status: 'live',
+    league: 'NBA 2025-26',
+    stage: 'Regular Season',
+    venue: 'Chase Center, San Francisco',
+    date: 'Today',
+    time: 'Q4 03:24',
+    isLive: true,
+    team1: {
+      name: 'GS Warriors',
+      short: 'GSW',
+      score: '112',
+      flag: '🌉',
+      color: '#eab308'
+    },
+    team2: {
+      name: 'LA Lakers',
+      short: 'LAL',
+      score: '108',
+      flag: '👑',
+      color: '#9333ea'
+    },
+    quarters: {
+      labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Total'],
+      team1: [28, 30, 29, 25, 112],
+      team2: [26, 32, 24, 26, 108]
+    },
+    boxScore: [
+      { player: 'Stephen Curry', team: 'GSW', pts: 34, reb: 5, ast: 8, fg: '12/21', pm: '+9' },
+      { player: 'Klay Thompson', team: 'GSW', pts: 19, reb: 3, ast: 2, fg: '7/15', pm: '+4' },
+      { player: 'Draymond Green', team: 'GSW', pts: 8, reb: 11, ast: 10, fg: '3/6', pm: '+11' },
+      { player: 'LeBron James', team: 'LAL', pts: 28, reb: 9, ast: 9, fg: '11/20', pm: '-3' },
+      { player: 'Anthony Davis', team: 'LAL', pts: 26, reb: 14, ast: 3, fg: '10/18', pm: '-2' },
+      { player: 'Austin Reaves', team: 'LAL', pts: 16, reb: 4, ast: 6, fg: '6/12', pm: '-5' }
+    ]
+  },
+
+  // --- TENNIS LIVE ---
+  {
+    id: 't-live-1',
+    sport: 'tennis',
+    status: 'live',
+    league: 'Wimbledon Championship',
+    stage: 'Final',
+    venue: 'Centre Court, London',
+    date: 'Today',
+    time: 'Set 4 - (4-4)',
+    isLive: true,
+    team1: {
+      name: 'Carlos Alcaraz',
+      short: 'ALC',
+      score: '2',
+      flag: '🇪🇸',
+      sets: ['6', '4', '6', '4*'],
+      currentPoints: '40'
+    },
+    team2: {
+      name: 'Jannik Sinner',
+      short: 'SIN',
+      score: '1',
+      flag: '🇮🇹',
+      sets: ['4', '6', '3', '4'],
+      currentPoints: '30'
+    },
+    tennisStats: {
+      aces: [14, 11],
+      doubleFaults: [3, 2],
+      firstServePct: ['68%', '71%'],
+      breakPointsWon: ['4/9', '3/7'],
+      fastestServe: ['134 mph', '132 mph']
+    }
+  },
+
+  // --- PAST MATCHES (RESULTS) ---
+  {
+    id: 'c-past-1',
+    sport: 'cricket',
+    status: 'past',
+    league: 'IPL 2026',
+    stage: 'Final',
+    venue: 'Narendra Modi Stadium, Ahmedabad',
+    date: 'Yesterday',
+    time: 'Completed',
+    isLive: false,
+    team1: {
+      name: 'Chennai Super Kings',
+      short: 'CSK',
+      score: '192/5',
+      overs: '20.0',
+      flag: '🦁',
+      winner: true
+    },
+    team2: {
+      name: 'Mumbai Indians',
+      short: 'MI',
+      score: '179/9',
+      overs: '20.0',
+      flag: '🔵',
+      winner: false
+    },
+    situation: 'CSK won by 13 runs',
+    manOfMatch: 'Ruturaj Gaikwad (78 off 45)',
+    scorecard: {
+      team1Batting: [
+        { name: 'Ruturaj Gaikwad (c)', dismissal: 'c Rohit b Bumrah', runs: 78, balls: 45, fours: 7, sixes: 4, sr: '173.3' },
+        { name: 'Rachin Ravindra', dismissal: 'b Coetzee', runs: 37, balls: 22, fours: 4, sixes: 2, sr: '168.1' },
+        { name: 'Shivam Dube', dismissal: 'c Hardik b Madhwal', runs: 45, balls: 21, fours: 2, sixes: 5, sr: '214.2' },
+        { name: 'MS Dhoni', dismissal: 'not out', runs: 18, balls: 8, fours: 1, sixes: 2, sr: '225.0' }
+      ],
+      team2Bowling: [
+        { name: 'Jasprit Bumrah', overs: '4.0', maidens: 1, runs: 22, wickets: 2, econ: '5.50' },
+        { name: 'Gerald Coetzee', overs: '4.0', maidens: 0, runs: 44, wickets: 1, econ: '11.00' }
+      ],
+      fallOfWickets: ['60/1 (Ravindra)', '125/2 (Gaikwad)', '170/3 (Dube)']
+    }
+  },
+  {
+    id: 'f-past-1',
+    sport: 'football',
+    status: 'past',
+    league: 'English Premier League',
+    stage: 'Matchday 32',
+    venue: 'Emirates Stadium, London',
+    date: '3 Days Ago',
+    time: 'FT',
+    isLive: false,
+    team1: {
+      name: 'Arsenal',
+      short: 'ARS',
+      score: '3',
+      flag: '🔴',
+      winner: true
+    },
+    team2: {
+      name: 'Liverpool',
+      short: 'LIV',
+      score: '1',
+      flag: '🔴',
+      winner: false
+    },
+    situation: 'Arsenal won 3 - 1',
+    manOfMatch: 'Bukayo Saka',
+    timeline: [
+      { min: "14'", player: 'Bukayo Saka', team: 'ARS', type: 'goal', detail: 'Right foot slotted finish' },
+      { min: "45+3'", player: 'Gabriel (O.G.)', team: 'LIV', type: 'goal', detail: 'Deflection mix-up' },
+      { min: "67'", player: 'Gabriel Martinelli', team: 'ARS', type: 'goal', detail: 'Capitalized on defensive blunder' },
+      { min: "90+2'", player: 'Leandro Trossard', team: 'ARS', type: 'goal', detail: 'Solo sprint and nutmeg finish' }
+    ],
+    stats: {
+      possession: ['54%', '46%'],
+      shotsOnTarget: [7, 2],
+      totalShots: [16, 9],
+      corners: [6, 4],
+      fouls: [9, 12],
+      xG: ['2.35', '0.62']
+    }
+  },
+  {
+    id: 'b-past-1',
+    sport: 'basketball',
+    status: 'past',
+    league: 'NBA 2025-26',
+    stage: 'Regular Season',
+    venue: 'TD Garden, Boston',
+    date: '4 Days Ago',
+    time: 'FT',
+    isLive: false,
+    team1: {
+      name: 'Boston Celtics',
+      short: 'BOS',
+      score: '124',
+      flag: '☘️',
+      winner: true
+    },
+    team2: {
+      name: 'Milwaukee Bucks',
+      short: 'MIL',
+      score: '118',
+      flag: '🦌',
+      winner: false
+    },
+    situation: 'Celtics win by 6',
+    quarters: {
+      labels: ['Q1', 'Q2', 'Q3', 'Q4', 'Total'],
+      team1: [32, 34, 28, 30, 124],
+      team2: [28, 30, 31, 29, 118]
+    },
+    boxScore: [
+      { player: 'Jayson Tatum', team: 'BOS', pts: 38, reb: 11, ast: 7, fg: '13/23', pm: '+12' },
+      { player: 'Jaylen Brown', team: 'BOS', pts: 29, reb: 6, ast: 4, fg: '11/19', pm: '+8' },
+      { player: 'Giannis Antetokounmpo', team: 'MIL', pts: 35, reb: 15, ast: 6, fg: '14/22', pm: '-2' },
+      { player: 'Damian Lillard', team: 'MIL', pts: 27, reb: 4, ast: 8, fg: '8/17', pm: '-4' }
+    ]
+  },
+
+  // --- FUTURE FIXTURES ---
+  {
+    id: 'c-fut-1',
+    sport: 'cricket',
+    status: 'future',
+    league: 'T20 World Cup 2026',
+    stage: 'Semi Final 1',
+    venue: 'Eden Gardens, Kolkata',
+    date: 'Tomorrow, 19:00 IST',
+    time: 'In 28 Hours',
+    isLive: false,
+    team1: {
+      name: 'England',
+      short: 'ENG',
+      flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+      rank: '#2 ICC'
+    },
+    team2: {
+      name: 'South Africa',
+      short: 'SA',
+      flag: '🇿🇦',
+      rank: '#4 ICC'
+    },
+    countdown: '1d 04h 22m',
+    pitchReport: 'Fresh pitch, good bounce expected with dew factor later in the evening.',
+    squads: {
+      team1: [
+        { name: 'Jos Buttler (c, wk)', role: 'Wicket-Keeper / Batter', isXI: true },
+        { name: 'Phil Salt', role: 'Batter', isXI: true },
+        { name: 'Harry Brook', role: 'Batter', isXI: true },
+        { name: 'Liam Livingstone', role: 'All-Rounder', isXI: true },
+        { name: 'Sam Curran', role: 'All-Rounder', isXI: true },
+        { name: 'Moeen Ali', role: 'All-Rounder', isXI: true },
+        { name: 'Adil Rashid', role: 'Bowler', isXI: true },
+        { name: 'Jofra Archer', role: 'Bowler', isXI: true },
+        { name: 'Mark Wood', role: 'Bowler', isXI: true },
+        { name: 'Reece Topley', role: 'Bowler', isXI: true }
+      ],
+      team2: [
+        { name: 'Aiden Markram (c)', role: 'Batter', isXI: true },
+        { name: 'Quinton de Kock (wk)', role: 'Wicket-Keeper / Batter', isXI: true },
+        { name: 'Heinrich Klaasen', role: 'Batter', isXI: true },
+        { name: 'David Miller', role: 'Batter', isXI: true },
+        { name: 'Tristan Stubbs', role: 'Batter', isXI: true },
+        { name: 'Marco Jansen', role: 'All-Rounder', isXI: true },
+        { name: 'Keshav Maharaj', role: 'Bowler', isXI: true },
+        { name: 'Kagiso Rabada', role: 'Bowler', isXI: true },
+        { name: 'Anrich Nortje', role: 'Bowler', isXI: true },
+        { name: 'Tabraiz Shamsi', role: 'Bowler', isXI: true }
+      ]
+    }
+  },
+  {
+    id: 'f-fut-1',
+    sport: 'football',
+    status: 'future',
+    league: 'El Clásico - La Liga',
+    stage: 'Round 34',
+    venue: 'Camp Nou, Barcelona',
+    date: 'Saturday, 20:45 CET',
+    time: 'In 3 Days',
+    isLive: false,
+    team1: {
+      name: 'FC Barcelona',
+      short: 'FCB',
+      flag: '🇪🇸',
+      rank: '1st in La Liga'
+    },
+    team2: {
+      name: 'Real Madrid',
+      short: 'RMA',
+      flag: '🇪🇸',
+      rank: '2nd in La Liga'
+    },
+    countdown: '3d 12h 15m',
+    referee: 'Mateu Lahoz (VAR: Martínez Munuera)',
+    squads: {
+      team1: [
+        { name: 'Marc-André ter Stegen', pos: 'GK', role: 'Keeper', isXI: true },
+        { name: 'Jules Koundé', pos: 'RB', role: 'Defender', isXI: true },
+        { name: 'Ronald Araújo', pos: 'CB', role: 'Defender', isXI: true },
+        { name: 'Pau Cubarsí', pos: 'CB', role: 'Defender', isXI: true },
+        { name: 'Alejandro Balde', pos: 'LB', role: 'Defender', isXI: true },
+        { name: 'Frenkie de Jong', pos: 'MF', role: 'Midfielder', isXI: true },
+        { name: 'Pedri', pos: 'MF', role: 'Playmaker', isXI: true },
+        { name: 'Gavi', pos: 'MF', role: 'Midfielder', isXI: true },
+        { name: 'Lamine Yamal', pos: 'FW', role: 'Winger', isXI: true },
+        { name: 'Robert Lewandowski', pos: 'ST', role: 'Striker', isXI: true },
+        { name: 'Raphinha', pos: 'FW', role: 'Winger', isXI: true }
+      ],
+      team2: [
+        { name: 'Thibaut Courtois', pos: 'GK', role: 'Keeper', isXI: true },
+        { name: 'Dani Carvajal', pos: 'RB', role: 'Defender', isXI: true },
+        { name: 'Antonio Rüdiger', pos: 'CB', role: 'Defender', isXI: true },
+        { name: 'Éder Militão', pos: 'CB', role: 'Defender', isXI: true },
+        { name: 'Ferland Mendy', pos: 'LB', role: 'Defender', isXI: true },
+        { name: 'Eduardo Camavinga', pos: 'MF', role: 'Midfielder', isXI: true },
+        { name: 'Federico Valverde', pos: 'MF', role: 'Midfielder', isXI: true },
+        { name: 'Jude Bellingham', pos: 'MF', role: 'Attacking Mid', isXI: true },
+        { name: 'Rodrygo', pos: 'FW', role: 'Winger', isXI: true },
+        { name: 'Kylian Mbappé', pos: 'ST', role: 'Forward', isXI: true },
+        { name: 'Vinícius Jr.', pos: 'FW', role: 'Winger', isXI: true }
+      ]
+    }
+  },
+  {
+    id: 'b-fut-1',
+    sport: 'basketball',
+    status: 'future',
+    league: 'NBA 2025-26',
+    stage: 'Eastern Conference Clash',
+    venue: 'Madison Square Garden, New York',
+    date: 'Sunday, 18:00 EST',
+    time: 'In 4 Days',
+    isLive: false,
+    team1: {
+      name: 'NY Knicks',
+      short: 'NYK',
+      flag: '🗽',
+      rank: '3rd East'
+    },
+    team2: {
+      name: 'Miami Heat',
+      short: 'MIA',
+      flag: '🔥',
+      rank: '5th East'
+    },
+    countdown: '4d 06h 00m',
+    squads: {
+      team1: [
+        { name: 'Jalen Brunson', pos: 'PG', role: 'Star PG', isXI: true },
+        { name: 'Mikal Bridges', pos: 'SG', role: 'Wing 3&D', isXI: true },
+        { name: 'OG Anunoby', pos: 'SF', role: 'Forward', isXI: true },
+        { name: 'Karl-Anthony Towns', pos: 'C', role: 'Big Man', isXI: true },
+        { name: 'Josh Hart', pos: 'G/F', role: 'Utility Enforcer', isXI: true }
+      ],
+      team2: [
+        { name: 'Terry Rozier', pos: 'PG', role: 'Guard', isXI: true },
+        { name: 'Tyler Herro', pos: 'SG', role: 'Sharpshooter', isXI: true },
+        { name: 'Jimmy Butler', pos: 'SF', role: 'Captain / Closer', isXI: true },
+        { name: 'Nikola Jović', pos: 'PF', role: 'Stretch 4', isXI: true },
+        { name: 'Bam Adebayo', pos: 'C', role: 'Center', isXI: true }
+      ]
+    }
+  }
+];
+
+// Comprehensive Player Database for Player Stats Tab
+const PLAYERS_DATABASE = [
+  {
+    id: 'p-1',
+    name: 'Virat Kohli',
+    sport: 'cricket',
+    team: 'India / RCB',
+    country: 'India',
+    flag: '🇮🇳',
+    role: 'Top-Order Batter',
+    age: 36,
+    liveStatus: { match: 'IND vs AUS', runs: 74, balls: 48, notOut: true },
+    careerStats: {
+      matches: 524,
+      runs: 26980,
+      hundreds: 80,
+      average: '53.6',
+      strikeRate: '138.2 in T20I'
+    },
+    recentScores: ['74*', '82*', '49', '117', '67'],
+    avatarBadge: 'VK18'
+  },
+  {
+    id: 'p-2',
+    name: 'Jasprit Bumrah',
+    sport: 'cricket',
+    team: 'India / MI',
+    country: 'India',
+    flag: '🇮🇳',
+    role: 'Fast Bowler',
+    age: 31,
+    liveStatus: { match: 'Dugout', figures: 'Ready to bowl' },
+    careerStats: {
+      matches: 215,
+      wickets: 410,
+      economy: '4.55 (ODI) / 6.27 (T20)',
+      bestFigures: '6/19',
+      ranking: '#1 ICC Test & T20'
+    },
+    recentScores: ['2/22', '3/14', '4/33', '1/18', '3/21'],
+    avatarBadge: 'JB93'
+  },
+  {
+    id: 'p-3',
+    name: 'Jude Bellingham',
+    sport: 'football',
+    team: 'Real Madrid',
+    country: 'England',
+    flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿',
+    role: 'Central Attacking Midfielder',
+    age: 21,
+    liveStatus: { match: 'RMA vs MCI (78\')', goals: 1, assists: 0, rating: 8.4 },
+    careerStats: {
+      appearances: 220,
+      goals: 62,
+      assists: 44,
+      passAccuracy: '89.4%',
+      tacklesPerGame: 2.3
+    },
+    recentScores: ['1 Goal', '2 Assists', '1 Goal', '0 Goal', '1 Goal'],
+    avatarBadge: 'JB5'
+  },
+  {
+    id: 'p-4',
+    name: 'Erling Haaland',
+    sport: 'football',
+    team: 'Manchester City',
+    country: 'Norway',
+    flag: '🇳🇴',
+    role: 'Striker (Center-Forward)',
+    age: 24,
+    liveStatus: { match: 'RMA vs MCI (78\')', goals: 1, assists: 0, rating: 8.2 },
+    careerStats: {
+      appearances: 240,
+      goals: 210,
+      assists: 38,
+      shotConversion: '32%',
+      goldenBoots: 3
+    },
+    recentScores: ['1 Goal', '3 Goals', '0 Goal', '2 Goals', '1 Goal'],
+    avatarBadge: 'EH9'
+  },
+  {
+    id: 'p-5',
+    name: 'Stephen Curry',
+    sport: 'basketball',
+    team: 'Golden State Warriors',
+    country: 'USA',
+    flag: '🇺🇸',
+    role: 'Point Guard',
+    age: 36,
+    liveStatus: { match: 'GSW vs LAL (Q4)', pts: 34, reb: 5, ast: 8 },
+    careerStats: {
+      games: 980,
+      ppg: '24.8',
+      rpg: '4.7',
+      apg: '6.4',
+      threePointersMade: '3,780+ (All-Time Record)',
+      threePtPct: '42.6%'
+    },
+    recentScores: ['34 pts', '41 pts', '27 pts', '32 pts', '38 pts'],
+    avatarBadge: 'SC30'
+  },
+  {
+    id: 'p-6',
+    name: 'Carlos Alcaraz',
+    sport: 'tennis',
+    team: 'ATP World Tour',
+    country: 'Spain',
+    flag: '🇪🇸',
+    role: 'Right-handed (Two-handed backhand)',
+    age: 21,
+    liveStatus: { match: 'Wimbledon Final (Set 4)', sets: '2-1 up', aces: 14 },
+    careerStats: {
+      titles: 18,
+      grandSlams: 4,
+      winPct: '83.2%',
+      rank: 'World #2',
+      prizeMoney: '$38,500,000+'
+    },
+    recentScores: ['W 3-2', 'W 3-0', 'W 3-1', 'W 3-0', 'W 3-1'],
+    avatarBadge: 'CA'
+  }
+];
+
+export default function App() {
+  const [activeSport, setActiveSport] = useState('all');
+  const [activeTab, setActiveTab] = useState('live'); // 'live' | 'past' | 'future' | 'players'
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [selectedPlayer, setSelectedPlayer] = useState(null);
+  const [matches, setMatches] = useState(INITIAL_MATCHES);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isLiveSimulating, setIsLiveSimulating] = useState(true);
+  const [lastTick, setLastTick] = useState(Date.now());
+  const [scorecardSubTab, setScorecardSubTab] = useState('scorecard'); // 'scorecard' | 'commentary' | 'squads' | 'stats'
+
+  // Sports list configuration
+  const sports = [
+    { id: 'all', label: 'All Sports', icon: Trophy, count: matches.length },
+    { id: 'cricket', label: 'Cricket', icon: Activity, count: matches.filter(m => m.sport === 'cricket').length },
+    { id: 'football', label: 'Football', icon: Shield, count: matches.filter(m => m.sport === 'football').length },
+    { id: 'basketball', label: 'Basketball', icon: Zap, count: matches.filter(m => m.sport === 'basketball').length },
+    { id: 'tennis', label: 'Tennis', icon: TrendingUp, count: matches.filter(m => m.sport === 'tennis').length },
+  ];
+
+  // Live simulation ticker: Simulates cricket runs, balls, football clock, etc.
+  useEffect(() => {
+    if (!isLiveSimulating) return;
+
+    const interval = setInterval(() => {
+      setLastTick(Date.now());
+      setMatches(prevMatches =>
+        prevMatches.map(m => {
+          if (m.id === 'c-live-1') {
+            // Cricket live update simulation
+            const runsInc = Math.random() > 0.6 ? 1 : Math.random() > 0.8 ? 4 : 0;
+            const currentRuns = parseInt(m.team1.score.split('/')[0]) + runsInc;
+            const currentWickets = m.team1.score.split('/')[1];
+            return {
+              ...m,
+              team1: {
+                ...m.team1,
+                score: `${currentRuns}/${currentWickets}`
+              },
+              situation: `India need ${Math.max(1, 185 - currentRuns)} runs to win`
+            };
+          }
+          if (m.id === 'b-live-1') {
+            // Basketball tick
+            const inc = Math.random() > 0.5 ? 2 : 0;
+            return {
+              ...m,
+              team1: {
+                ...m.team1,
+                score: String(parseInt(m.team1.score) + inc)
+              }
+            };
+          }
+          return m;
+        })
+      );
+    }, 4500);
+
+    return () => clearInterval(interval);
+  }, [isLiveSimulating]);
+
+  // Filtered matches based on status and search query
+  const filteredMatches = useMemo(() => {
+    return matches.filter(m => {
+      const sportMatch = activeSport === 'all' || m.sport === activeSport;
+      const statusMatch = m.status === activeTab;
+      const queryMatch =
+        searchQuery === '' ||
+        m.team1.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.team2.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        m.league.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (m.venue && m.venue.toLowerCase().includes(searchQuery.toLowerCase()));
+      return sportMatch && statusMatch && queryMatch;
+    });
+  }, [matches, activeSport, activeTab, searchQuery]);
+
+  // Filtered players
+  const filteredPlayers = useMemo(() => {
+    return PLAYERS_DATABASE.filter(p => {
+      const sportMatch = activeSport === 'all' || p.sport === activeSport;
+      const queryMatch =
+        searchQuery === '' ||
+        p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.team.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        p.country.toLowerCase().includes(searchQuery.toLowerCase());
+      return sportMatch && queryMatch;
+    });
+  }, [activeSport, searchQuery]);
+
+  return (
+    <div className="min-h-screen bg-[#0b0f19] text-slate-100 font-sans flex flex-col selection:bg-emerald-500 selection:text-black">
+      {/* ================= HEADER ================= */}
+      <header className="sticky top-0 z-40 bg-[#0d1424]/95 backdrop-blur-md border-b border-slate-800 shadow-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20">
+            {/* Logo */}
+            <div className="flex items-center space-x-3 cursor-pointer" onClick={() => { setActiveTab('live'); setActiveSport('all'); }}>
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 via-teal-500 to-cyan-600 flex items-center justify-center shadow-lg shadow-emerald-500/20 ring-2 ring-emerald-500/30">
+                <Flame className="w-6 h-6 text-slate-950 fill-current" />
+              </div>
+              <div>
+                <div className="flex items-center space-x-2">
+                  <span className="text-xl font-black tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+                    SPORT<span className="text-emerald-400">PULSE</span>
+                  </span>
+                  <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    LIVE PRO
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-400 tracking-wide font-medium">Real-Time Global Sports Central</p>
+              </div>
+            </div>
+
+            {/* Quick Actions & Live Sim Toggle */}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => setIsLiveSimulating(!isLiveSimulating)}
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 border ${
+                  isLiveSimulating
+                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-sm shadow-emerald-900/50'
+                    : 'bg-slate-800/80 text-slate-400 border-slate-700 hover:text-slate-200'
+                }`}
+                title="Toggles automated real-time mock updates"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${isLiveSimulating ? 'animate-spin text-emerald-400' : ''}`} />
+                <span className="hidden md:inline">{isLiveSimulating ? 'Live Feed: Auto-Syncing' : 'Sync Paused'}</span>
+                <span className="md:hidden">{isLiveSimulating ? 'Live' : 'Paused'}</span>
+              </button>
+
+              <div className="relative hidden md:block w-64">
+                <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search matches, players, leagues..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="w-full bg-[#131b2e] border border-slate-700/80 rounded-xl pl-9 pr-4 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Sport Selector Carousel / Buttons */}
+          <div className="flex items-center space-x-2 overflow-x-auto pb-3 pt-1 scrollbar-none border-t border-slate-800/60">
+            {sports.map(s => {
+              const Icon = s.icon;
+              const isSelected = activeSport === s.id;
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveSport(s.id)}
+                  className={`flex items-center space-x-2 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                    isSelected
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-bold shadow-md shadow-emerald-500/25 scale-105'
+                      : 'bg-slate-900/80 text-slate-300 hover:bg-slate-800 border border-slate-800 hover:border-slate-700'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-slate-950' : 'text-slate-400'}`} />
+                  <span>{s.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </header>
+
+      {/* ================= MAIN CONTAINER ================= */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col">
+        {/* Mobile Search Bar */}
+        <div className="relative mb-5 md:hidden">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search teams, players, tournaments..."
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            className="w-full bg-[#131b2e] border border-slate-700/80 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500"
+          />
+        </div>
+
+        {/* View Tabs: Live / Past / Fixtures / Players */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <button
+              onClick={() => setActiveTab('live')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all relative ${
+                activeTab === 'live'
+                  ? 'bg-red-500/10 text-red-400 border border-red-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              }`}
+            >
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+              </span>
+              <span>Live Now</span>
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] bg-red-500/20 text-red-300 font-extrabold">
+                {matches.filter(m => m.status === 'live').length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('past')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                activeTab === 'past'
+                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              }`}
+            >
+              <History className="w-4 h-4" />
+              <span>Results & Past Matches</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('future')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                activeTab === 'future'
+                  ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              <span>Upcoming Fixtures</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('players')}
+              className={`flex items-center space-x-2 px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
+                activeTab === 'players'
+                  ? 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              <span>Player Live Stats</span>
+            </button>
+          </div>
+
+          <div className="hidden lg:flex items-center space-x-2 text-xs text-slate-400">
+            <Radio className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
+            <span>Real-time coverage: 120+ leagues</span>
+          </div>
+        </div>
+
+        {/* ================= CONTENT: MATCH CARDS GRID OR PLAYERS ================= */}
+        {activeTab !== 'players' ? (
+          <div>
+            {filteredMatches.length === 0 ? (
+              <div className="text-center py-20 bg-[#0f172a]/50 rounded-2xl border border-slate-800/80">
+                <Trophy className="w-12 h-12 text-slate-600 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-slate-300">No Matches Found</h3>
+                <p className="text-xs text-slate-500 mt-1">Try switching sport filters or clearing your search keywords.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {filteredMatches.map(match => (
+                  <MatchCard
+                    key={match.id}
+                    match={match}
+                    onOpenDetails={() => {
+                      setSelectedMatch(match);
+                      setScorecardSubTab('scorecard');
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          /* ================= PLAYERS DATABASE VIEW ================= */
+          <div>
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <p className="text-xs text-slate-400">
+                Tracking all global athletes, current live match performance, form guides, and career metrics.
+              </p>
+              <span className="text-xs font-semibold text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20 w-fit">
+                {filteredPlayers.length} Pro Athletes Tracked
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+              {filteredPlayers.map(player => (
+                <PlayerCard
+                  key={player.id}
+                  player={player}
+                  onSelect={() => setSelectedPlayer(player)}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* ================= DETAILED MATCH MODAL ================= */}
+      {selectedMatch && (
+        <MatchDetailsModal
+          match={selectedMatch}
+          subTab={scorecardSubTab}
+          setSubTab={setScorecardSubTab}
+          onClose={() => setSelectedMatch(null)}
+        />
+      )}
+
+      {/* ================= DETAILED PLAYER MODAL ================= */}
+      {selectedPlayer && (
+        <PlayerProfileModal
+          player={selectedPlayer}
+          onClose={() => setSelectedPlayer(null)}
+        />
+      )}
+
+      {/* ================= FOOTER ================= */}
+      <footer className="mt-auto border-t border-slate-800/80 bg-[#090d16] py-6">
+        <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
+          <div className="flex items-center space-x-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span>Live Broadcast Engine v3.4 • Updated every second</span>
+          </div>
+          <p className="text-slate-400">Live ball-by-ball, match timelines, squads and official statistics.</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+// ==========================================
+// COMPONENT: MATCH CARD (Rich Sport Card)
+// ==========================================
+function MatchCard({ match, onOpenDetails }) {
+  const isCricket = match.sport === 'cricket';
+  const isFootball = match.sport === 'football';
+  const isTennis = match.sport === 'tennis';
+  const isBasketball = match.sport === 'basketball';
+
+  return (
+    <div
+      onClick={onOpenDetails}
+      className="group bg-[#11192e] hover:bg-[#152038] border border-slate-800 hover:border-slate-700/80 rounded-2xl p-4 sm:p-5 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-2xl hover:shadow-emerald-950/20 flex flex-col justify-between relative overflow-hidden"
+    >
+      {/* Accent corner glow based on status */}
+      <div
+        className={`absolute top-0 right-0 w-28 h-28 blur-3xl opacity-20 pointer-events-none rounded-full ${
+          match.status === 'live' ? 'bg-red-500' : match.status === 'past' ? 'bg-emerald-500' : 'bg-cyan-500'
+        }`}
+      />
+
+      {/* Card Header: Tournament & Status */}
+      <div>
+        <div className="flex items-center justify-between text-xs mb-3">
+          <div className="flex items-center space-x-2">
+            <span className="font-semibold text-slate-300 tracking-tight">{match.league}</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-[11px] text-slate-400">{match.stage}</span>
+          </div>
+
+          {match.status === 'live' && (
+            <span className="flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-red-500/15 text-red-400 border border-red-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-ping"></span>
+              <span>{match.time || 'LIVE'}</span>
+            </span>
+          )}
+
+          {match.status === 'past' && (
+            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-slate-300 border border-slate-700">
+              FINAL / RESULT
+            </span>
+          )}
+
+          {match.status === 'future' && (
+            <span className="flex items-center space-x-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-cyan-950/60 text-cyan-300 border border-cyan-800/40">
+              <Clock className="w-3 h-3" />
+              <span>{match.countdown || match.time}</span>
+            </span>
+          )}
+        </div>
+
+        {/* Teams and Scores */}
+        <div className="space-y-3 my-4">
+          {/* Team 1 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-xl sm:text-2xl drop-shadow">{match.team1.flag || '🏳️'}</span>
+              <div>
+                <h4 className={`text-sm sm:text-base font-bold tracking-tight ${match.team1.winner ? 'text-emerald-400' : 'text-slate-100'}`}>
+                  {match.team1.name}
+                </h4>
+                {match.team1.overs && (
+                  <span className="text-[11px] text-slate-400 font-mono">({match.team1.overs} ov)</span>
+                )}
+              </div>
+            </div>
+
+            <div className="text-right">
+              {match.team1.score !== undefined ? (
+                <div className="text-base sm:text-lg font-black tracking-tight font-mono text-white">
+                  {match.team1.score}
+                </div>
+              ) : (
+                <span className="text-xs text-slate-400 font-medium">{match.team1.rank || 'Squad In'}</span>
+              )}
+
+              {/* Tennis Set details */}
+              {isTennis && match.team1.sets && (
+                <div className="flex space-x-1 text-[11px] font-mono text-slate-400 mt-0.5">
+                  {match.team1.sets.map((s, idx) => (
+                    <span key={idx} className="bg-slate-800 px-1 rounded">{s}</span>
+                  ))}
+                  {match.team1.currentPoints && (
+                    <span className="text-amber-400 font-bold ml-1">{match.team1.currentPoints}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Team 2 */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <span className="text-xl sm:text-2xl drop-shadow">{match.team2.flag || '🏳️'}</span>
+              <div>
+                <h4 className={`text-sm sm:text-base font-bold tracking-tight ${match.team2.winner ? 'text-emerald-400' : 'text-slate-100'}`}>
+                  {match.team2.name}
+                </h4>
+                {match.team2.overs && (
+                  <span className="text-[11px] text-slate-400 font-mono">({match.team2.overs} ov)</span>
+                )}
+              </div>
+            </div>
+
+            <div className="text-right">
+              {match.team2.score !== undefined ? (
+                <div className="text-base sm:text-lg font-black tracking-tight font-mono text-white">
+                  {match.team2.score}
+                </div>
+              ) : (
+                <span className="text-xs text-slate-400 font-medium">{match.team2.rank || 'Squad In'}</span>
+              )}
+
+              {/* Tennis Set details */}
+              {isTennis && match.team2.sets && (
+                <div className="flex space-x-1 text-[11px] font-mono text-slate-400 mt-0.5">
+                  {match.team2.sets.map((s, idx) => (
+                    <span key={idx} className="bg-slate-800 px-1 rounded">{s}</span>
+                  ))}
+                  {match.team2.currentPoints && (
+                    <span className="text-amber-400 font-bold ml-1">{match.team2.currentPoints}</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Live contextual play / outcome summary */}
+        {match.situation && (
+          <div className="bg-slate-900/90 rounded-xl px-3 py-2 border border-slate-800/80 mb-3 text-xs">
+            <div className="flex items-center space-x-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+              <p className="text-slate-300 font-medium truncate">{match.situation}</p>
+            </div>
+          </div>
+        )}
+
+        {/* Cricket Recent Over Balls ticker */}
+        {isCricket && match.recentBalls && (
+          <div className="flex items-center space-x-1.5 mb-3 text-xs">
+            <span className="text-[10px] text-slate-400 uppercase font-semibold">Over:</span>
+            <div className="flex items-center space-x-1 font-mono text-[11px]">
+              {match.recentBalls.map((b, i) => (
+                <span
+                  key={i}
+                  className={`w-5 h-5 rounded-full flex items-center justify-center font-bold ${
+                    b === 'W'
+                      ? 'bg-red-500 text-white'
+                      : b === '4' || b === '6'
+                      ? 'bg-emerald-500 text-slate-950'
+                      : 'bg-slate-800 text-slate-300'
+                  }`}
+                >
+                  {b}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Football Timeline Snippet */}
+        {isFootball && match.timeline && (
+          <div className="text-[11px] text-slate-400 border-t border-slate-800/60 pt-2 mb-2 flex items-center justify-between">
+            <span className="truncate">Latest: {match.timeline[match.timeline.length - 1]?.min} {match.timeline[match.timeline.length - 1]?.player}</span>
+            <span className="text-emerald-400 font-bold">Goal!</span>
+          </div>
+        )}
+      </div>
+
+      {/* Footer / Venue / Full scorecard CTA */}
+      <div className="border-t border-slate-800/70 pt-3 flex items-center justify-between text-xs text-slate-400">
+        <div className="flex items-center space-x-1.5 truncate max-w-[70%]">
+          <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <span className="truncate">{match.venue}</span>
+        </div>
+
+        <div className="flex items-center space-x-1 text-emerald-400 font-semibold group-hover:translate-x-1 transition-transform">
+          <span>{match.status === 'future' ? 'Squads' : 'Full Scorecard'}</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// COMPONENT: FULL DETAILED MATCH MODAL
+// ==========================================
+function MatchDetailsModal({ match, subTab, setSubTab, onClose }) {
+  const isCricket = match.sport === 'cricket';
+  const isFootball = match.sport === 'football';
+  const isBasketball = match.sport === 'basketball';
+  const isTennis = match.sport === 'tennis';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-4xl bg-[#0e1628] border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+        {/* Modal Top Bar */}
+        <div className="p-4 sm:p-6 bg-gradient-to-b from-[#141e36] to-[#0e1628] border-b border-slate-800 relative">
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-800/60 rounded-full hover:bg-slate-700 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* League and Venue Header */}
+          <div className="flex items-center space-x-2 text-xs font-semibold text-slate-400 mb-2">
+            <span className="text-emerald-400">{match.league}</span>
+            <span>•</span>
+            <span>{match.stage}</span>
+            <span>•</span>
+            <span className="flex items-center space-x-1">
+              <MapPin className="w-3 h-3 text-slate-400" />
+              <span>{match.venue}</span>
+            </span>
+          </div>
+
+          {/* Big Score Header */}
+          <div className="grid grid-cols-3 items-center text-center my-3">
+            {/* Team 1 */}
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl drop-shadow">{match.team1.flag || '🏳️'}</span>
+              <h3 className="text-base sm:text-xl font-bold mt-1 text-white">{match.team1.name}</h3>
+              {match.team1.score && (
+                <div className="text-xl sm:text-3xl font-black text-emerald-400 font-mono mt-1">
+                  {match.team1.score}
+                  {match.team1.overs && <span className="text-xs sm:text-sm text-slate-400 ml-1">({match.team1.overs})</span>}
+                </div>
+              )}
+            </div>
+
+            {/* Match State Center Badge */}
+            <div className="flex flex-col items-center">
+              {match.status === 'live' ? (
+                <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-red-500/20 text-red-400 border border-red-500/30 animate-pulse">
+                  ● LIVE {match.time}
+                </span>
+              ) : match.status === 'past' ? (
+                <span className="px-3 py-1 rounded-full text-xs font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                  COMPLETED
+                </span>
+              ) : (
+                <div className="flex flex-col items-center">
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-cyan-950 text-cyan-400 border border-cyan-800">
+                    UPCOMING
+                  </span>
+                  <span className="text-[11px] text-slate-400 mt-1">{match.date}</span>
+                </div>
+              )}
+              {match.situation && (
+                <p className="text-[11px] text-amber-300 font-medium mt-2 max-w-[200px] leading-tight">
+                  {match.situation}
+                </p>
+              )}
+            </div>
+
+            {/* Team 2 */}
+            <div className="flex flex-col items-center">
+              <span className="text-3xl sm:text-4xl drop-shadow">{match.team2.flag || '🏳️'}</span>
+              <h3 className="text-base sm:text-xl font-bold mt-1 text-white">{match.team2.name}</h3>
+              {match.team2.score && (
+                <div className="text-xl sm:text-3xl font-black text-white font-mono mt-1">
+                  {match.team2.score}
+                  {match.team2.overs && <span className="text-xs sm:text-sm text-slate-400 ml-1">({match.team2.overs})</span>}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Sub Navigation Tabs */}
+          <div className="flex items-center space-x-2 border-t border-slate-800/80 pt-4 mt-4 overflow-x-auto">
+            <button
+              onClick={() => setSubTab('scorecard')}
+              className={`px-4 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
+                subTab === 'scorecard'
+                  ? 'bg-emerald-500 text-slate-950'
+                  : 'bg-slate-800/70 text-slate-300 hover:bg-slate-700'
+              }`}
+            >
+              {isCricket ? 'Full Batting & Bowling Card' : isFootball ? 'Stats & Timeline' : 'Box Score'}
+            </button>
+
+            {isCricket && match.commentary && (
+              <button
+                onClick={() => setSubTab('commentary')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
+                  subTab === 'commentary'
+                    ? 'bg-emerald-500 text-slate-950'
+                    : 'bg-slate-800/70 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Ball-by-Ball Commentary
+              </button>
+            )}
+
+            {match.squads && (
+              <button
+                onClick={() => setSubTab('squads')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition whitespace-nowrap ${
+                  subTab === 'squads'
+                    ? 'bg-emerald-500 text-slate-950'
+                    : 'bg-slate-800/70 text-slate-300 hover:bg-slate-700'
+                }`}
+              >
+                Official Squads & Playing XI
+              </button>
+            )}
+
+            {match.manOfMatch && (
+              <div className="ml-auto text-xs font-semibold text-amber-300 flex items-center space-x-1.5">
+                <Award className="w-3.5 h-3.5" />
+                <span>Player of Match: {match.manOfMatch}</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Modal Scrollable Body */}
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 text-slate-200">
+          {/* TAB 1: SCORECARD / DETAILED STATS */}
+          {subTab === 'scorecard' && (
+            <div className="space-y-6">
+              {/* CRICKET FULL SCORECARD */}
+              {isCricket && match.scorecard && (
+                <div className="space-y-6">
+                  {/* Current Batters in Crease (Live) */}
+                  {match.currentBatters && (
+                    <div className="bg-[#121c33] border border-slate-800 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-400">
+                        <span>LIVE BATSMEN AT CREASE</span>
+                        <span className="text-emerald-400">CURRENT PARTNERSHIP</span>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {match.currentBatters.map((b, i) => (
+                          <div key={i} className="flex items-center justify-between bg-slate-900/60 p-3 rounded-lg border border-slate-800/60">
+                            <div>
+                              <div className="font-bold text-sm text-white flex items-center space-x-1.5">
+                                <span>{b.name}</span>
+                                {b.onStrike && <span className="text-[10px] bg-emerald-500 text-slate-950 px-1.5 rounded font-black">*</span>}
+                              </div>
+                              <span className="text-xs text-slate-400">SR: {b.sr}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-base font-black text-emerald-400">{b.runs}</span>
+                              <span className="text-xs text-slate-400 ml-1">({b.balls})</span>
+                              <div className="text-[10px] text-slate-400 font-mono">4s: {b.fours} | 6s: {b.sixes}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {match.currentBowler && (
+                        <div className="mt-3 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+                          <span className="text-slate-400">Current Bowler: <strong className="text-white">{match.currentBowler.name}</strong></span>
+                          <span className="font-mono text-slate-300">
+                            {match.currentBowler.overs} ov • {match.currentBowler.maidens} m • {match.currentBowler.runs} r • <strong className="text-emerald-400">{match.currentBowler.wickets} w</strong> • Econ {match.currentBowler.econ}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Batting Card Table */}
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-2 flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      <span>Batting Scorecard</span>
+                    </h4>
+                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-[#141f38] text-slate-400 font-semibold border-b border-slate-800">
+                          <tr>
+                            <th className="py-2.5 px-3">Batter</th>
+                            <th className="py-2.5 px-3">Dismissal</th>
+                            <th className="py-2.5 px-3 text-right">R</th>
+                            <th className="py-2.5 px-3 text-right">B</th>
+                            <th className="py-2.5 px-3 text-right">4s</th>
+                            <th className="py-2.5 px-3 text-right">6s</th>
+                            <th className="py-2.5 px-3 text-right">SR</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 font-mono">
+                          {match.scorecard.team1Batting?.map((row, i) => (
+                            <tr key={i} className="hover:bg-slate-800/40">
+                              <td className="py-2.5 px-3 font-sans font-bold text-white">{row.name}</td>
+                              <td className="py-2.5 px-3 font-sans text-slate-400">{row.dismissal}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-white">{row.runs}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-400">{row.balls}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-300">{row.fours}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-300">{row.sixes}</td>
+                              <td className="py-2.5 px-3 text-right text-emerald-400">{row.sr}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Bowling Card Table */}
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-2 flex items-center space-x-2">
+                      <span className="w-2 h-2 rounded-full bg-teal-400"></span>
+                      <span>Bowling Figures</span>
+                    </h4>
+                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                      <table className="w-full text-xs text-left">
+                        <thead className="bg-[#141f38] text-slate-400 font-semibold border-b border-slate-800">
+                          <tr>
+                            <th className="py-2.5 px-3">Bowler</th>
+                            <th className="py-2.5 px-3 text-right">O</th>
+                            <th className="py-2.5 px-3 text-right">M</th>
+                            <th className="py-2.5 px-3 text-right">R</th>
+                            <th className="py-2.5 px-3 text-right">W</th>
+                            <th className="py-2.5 px-3 text-right">Econ</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60 font-mono">
+                          {match.scorecard.team2Bowling?.map((b, i) => (
+                            <tr key={i} className="hover:bg-slate-800/40">
+                              <td className="py-2.5 px-3 font-sans font-bold text-white">{b.name}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-300">{b.overs}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-400">{b.maidens}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-300">{b.runs}</td>
+                              <td className="py-2.5 px-3 text-right font-bold text-emerald-400">{b.wickets}</td>
+                              <td className="py-2.5 px-3 text-right text-slate-300">{b.econ}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Fall of Wickets */}
+                  {match.scorecard.fallOfWickets && (
+                    <div className="bg-[#10182b] p-3 rounded-xl border border-slate-800">
+                      <span className="text-xs font-bold text-slate-400 block mb-1.5">Fall of Wickets:</span>
+                      <div className="flex flex-wrap gap-2 text-xs font-mono text-slate-300">
+                        {match.scorecard.fallOfWickets.map((fow, idx) => (
+                          <span key={idx} className="bg-slate-800/80 px-2.5 py-1 rounded-md border border-slate-700">
+                            {fow}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* FOOTBALL STATS & TIMELINE */}
+              {isFootball && (
+                <div className="space-y-6">
+                  {/* Timeline Events */}
+                  {match.timeline && (
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-3">Key Match Events</h4>
+                      <div className="space-y-2 border-l-2 border-slate-700 pl-4 ml-2">
+                        {match.timeline.map((event, idx) => (
+                          <div key={idx} className="relative flex items-center justify-between bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
+                            <span className="absolute -left-[23px] top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-slate-950"></span>
+                            <div>
+                              <span className="font-mono text-xs font-bold text-emerald-400 mr-2">{event.min}</span>
+                              <span className="font-bold text-xs text-white">{event.player}</span>
+                              <span className="text-[11px] text-slate-400 ml-2">({event.team})</span>
+                            </div>
+                            <span className="text-xs text-slate-300 font-medium">{event.detail}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Football Match Stats Comparison */}
+                  {match.stats && (
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-3">Match Statistics</h4>
+                      <div className="space-y-3 bg-[#11192d] p-4 rounded-xl border border-slate-800 text-xs">
+                        {Object.entries(match.stats).map(([key, vals]) => {
+                          const labels = {
+                            possession: 'Possession',
+                            shotsOnTarget: 'Shots on Target',
+                            totalShots: 'Total Shots',
+                            corners: 'Corners',
+                            fouls: 'Fouls',
+                            xG: 'Expected Goals (xG)'
+                          };
+                          return (
+                            <div key={key}>
+                              <div className="flex justify-between font-semibold mb-1">
+                                <span className="text-emerald-400 font-mono">{vals[0]}</span>
+                                <span className="text-slate-400 uppercase tracking-wider text-[11px]">{labels[key] || key}</span>
+                                <span className="text-blue-400 font-mono">{vals[1]}</span>
+                              </div>
+                              <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden flex">
+                                <div className="bg-emerald-500 h-full" style={{ width: typeof vals[0] === 'string' && vals[0].includes('%') ? vals[0] : `${(Number(vals[0]) / (Number(vals[0]) + Number(vals[1]) || 1)) * 100}%` }}></div>
+                                <div className="bg-blue-500 h-full flex-1"></div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* BASKETBALL QUARTERS & BOX SCORE */}
+              {isBasketball && match.quarters && (
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="text-sm font-bold text-white mb-2">Quarter-by-Quarter Breakdown</h4>
+                    <div className="overflow-x-auto rounded-xl border border-slate-800">
+                      <table className="w-full text-xs text-center font-mono">
+                        <thead className="bg-[#141f38] text-slate-400 font-semibold">
+                          <tr>
+                            <th className="py-2.5 px-3 text-left font-sans">Team</th>
+                            {match.quarters.labels.map((q, i) => (
+                              <th key={i} className="py-2.5 px-3">{q}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/60">
+                          <tr>
+                            <td className="py-2.5 px-3 text-left font-sans font-bold text-white">{match.team1.short}</td>
+                            {match.quarters.team1.map((pts, i) => (
+                              <td key={i} className={`py-2.5 px-3 ${i === match.quarters.team1.length - 1 ? 'font-black text-emerald-400 text-sm' : 'text-slate-300'}`}>{pts}</td>
+                            ))}
+                          </tr>
+                          <tr>
+                            <td className="py-2.5 px-3 text-left font-sans font-bold text-white">{match.team2.short}</td>
+                            {match.quarters.team2.map((pts, i) => (
+                              <td key={i} className={`py-2.5 px-3 ${i === match.quarters.team2.length - 1 ? 'font-black text-blue-400 text-sm' : 'text-slate-300'}`}>{pts}</td>
+                            ))}
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {match.boxScore && (
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-2">Top Performers Box Score</h4>
+                      <div className="overflow-x-auto rounded-xl border border-slate-800">
+                        <table className="w-full text-xs text-left font-mono">
+                          <thead className="bg-[#141f38] text-slate-400 font-semibold">
+                            <tr>
+                              <th className="py-2.5 px-3 font-sans">Player</th>
+                              <th className="py-2.5 px-3">Team</th>
+                              <th className="py-2.5 px-3 text-right">PTS</th>
+                              <th className="py-2.5 px-3 text-right">REB</th>
+                              <th className="py-2.5 px-3 text-right">AST</th>
+                              <th className="py-2.5 px-3 text-right">FG</th>
+                              <th className="py-2.5 px-3 text-right">+/-</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/60">
+                            {match.boxScore.map((b, i) => (
+                              <tr key={i} className="hover:bg-slate-800/40">
+                                <td className="py-2.5 px-3 font-sans font-bold text-white">{b.player}</td>
+                                <td className="py-2.5 px-3 font-sans text-slate-400">{b.team}</td>
+                                <td className="py-2.5 px-3 text-right font-black text-emerald-400">{b.pts}</td>
+                                <td className="py-2.5 px-3 text-right text-slate-300">{b.reb}</td>
+                                <td className="py-2.5 px-3 text-right text-slate-300">{b.ast}</td>
+                                <td className="py-2.5 px-3 text-right text-slate-400">{b.fg}</td>
+                                <td className="py-2.5 px-3 text-right font-bold text-blue-400">{b.pm}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TENNIS DETAILED STATS */}
+              {isTennis && match.tennisStats && (
+                <div className="space-y-4">
+                  <h4 className="text-sm font-bold text-white mb-2">Tennis Match Matchup Metrics</h4>
+                  <div className="bg-[#11192d] p-4 rounded-xl border border-slate-800 space-y-3 text-xs">
+                    {Object.entries(match.tennisStats).map(([key, vals]) => (
+                      <div key={key} className="flex justify-between items-center py-1 border-b border-slate-800/50">
+                        <span className="font-mono text-emerald-400 font-bold">{vals[0]}</span>
+                        <span className="text-slate-400 uppercase text-[11px] font-semibold">{key.replace(/([A-Z])/g, ' $1')}</span>
+                        <span className="font-mono text-blue-400 font-bold">{vals[1]}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 2: COMMENTARY TIMELINE */}
+          {subTab === 'commentary' && match.commentary && (
+            <div className="space-y-3">
+              {match.commentary.map((comm, idx) => (
+                <div key={idx} className="bg-slate-900/70 p-3.5 rounded-xl border border-slate-800 flex items-start space-x-3">
+                  <span className="font-mono text-xs font-black bg-emerald-500/15 text-emerald-400 px-2 py-1 rounded border border-emerald-500/30">
+                    {comm.over}
+                  </span>
+                  <p className="text-xs text-slate-200 leading-relaxed font-sans">{comm.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* TAB 3: OFFICIAL SQUADS & LINEUPS */}
+          {subTab === 'squads' && match.squads && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Squad Team 1 */}
+              <div className="bg-[#121c32] p-4 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                  <h4 className="font-bold text-sm text-white flex items-center space-x-2">
+                    <span>{match.team1.flag}</span>
+                    <span>{match.team1.name} Playing XI</span>
+                  </h4>
+                  <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Confirmed</span>
+                </div>
+                <div className="space-y-2">
+                  {match.squads.team1?.map((player, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs py-1.5 px-2 rounded hover:bg-slate-800/50">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-slate-400 font-mono text-[11px] w-4">{idx + 1}</span>
+                        <span className="font-semibold text-slate-200">{player.name}</span>
+                        {player.captain && <span className="text-[9px] bg-amber-500 text-black px-1 rounded font-bold">C</span>}
+                      </div>
+                      <span className="text-[11px] text-slate-400">{player.role || player.pos}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Squad Team 2 */}
+              <div className="bg-[#121c32] p-4 rounded-xl border border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800 mb-3">
+                  <h4 className="font-bold text-sm text-white flex items-center space-x-2">
+                    <span>{match.team2.flag}</span>
+                    <span>{match.team2.name} Playing XI</span>
+                  </h4>
+                  <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Confirmed</span>
+                </div>
+                <div className="space-y-2">
+                  {match.squads.team2?.map((player, idx) => (
+                    <div key={idx} className="flex items-center justify-between text-xs py-1.5 px-2 rounded hover:bg-slate-800/50">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-slate-400 font-mono text-[11px] w-4">{idx + 1}</span>
+                        <span className="font-semibold text-slate-200">{player.name}</span>
+                        {player.captain && <span className="text-[9px] bg-amber-500 text-black px-1 rounded font-bold">C</span>}
+                      </div>
+                      <span className="text-[11px] text-slate-400">{player.role || player.pos}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// COMPONENT: PLAYER CARD
+// ==========================================
+function PlayerCard({ player, onSelect }) {
+  return (
+    <div
+      onClick={onSelect}
+      className="bg-[#11192e] hover:bg-[#152038] border border-slate-800 hover:border-purple-500/40 rounded-2xl p-5 transition-all duration-200 cursor-pointer shadow-lg hover:shadow-purple-950/20 flex flex-col justify-between"
+    >
+      <div>
+        <div className="flex items-start justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-sm font-black text-white shadow-md">
+              {player.avatarBadge}
+            </div>
+            <div>
+              <div className="flex items-center space-x-1.5">
+                <h4 className="font-bold text-base text-white">{player.name}</h4>
+                <span>{player.flag}</span>
+              </div>
+              <p className="text-xs text-slate-400">{player.role}</p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-wider bg-purple-500/10 text-purple-300 border border-purple-500/20 px-2 py-0.5 rounded">
+            {player.sport}
+          </span>
+        </div>
+
+        {/* Live Status Pill */}
+        {player.liveStatus && (
+          <div className="mt-4 bg-purple-950/40 border border-purple-800/40 p-2.5 rounded-xl text-xs flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+              <span className="text-slate-300 font-semibold">{player.liveStatus.match}</span>
+            </div>
+            <span className="text-purple-300 font-mono font-bold">
+              {player.liveStatus.runs !== undefined && `${player.liveStatus.runs}* (${player.liveStatus.balls})`}
+              {player.liveStatus.goals !== undefined && `Rating: ${player.liveStatus.rating}`}
+              {player.liveStatus.pts !== undefined && `${player.liveStatus.pts} PTS`}
+              {player.liveStatus.aces !== undefined && `${player.liveStatus.aces} Aces`}
+            </span>
+          </div>
+        )}
+
+        {/* Quick Highlights */}
+        <div className="grid grid-cols-2 gap-2 mt-4 text-xs">
+          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/80">
+            <span className="text-[10px] text-slate-400 uppercase block">Team / Club</span>
+            <span className="font-bold text-slate-200 truncate block">{player.team}</span>
+          </div>
+          <div className="bg-slate-900/60 p-2 rounded-lg border border-slate-800/80">
+            <span className="text-[10px] text-slate-400 uppercase block">Career Stat</span>
+            <span className="font-bold text-emerald-400 truncate block">
+              {player.careerStats.runs ? `${player.careerStats.runs} Runs` : player.careerStats.goals ? `${player.careerStats.goals} Goals` : player.careerStats.ppg ? `${player.careerStats.ppg} PPG` : `${player.careerStats.titles} Titles`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-slate-800/70 pt-3 mt-4 flex items-center justify-between text-xs text-purple-400 font-semibold">
+        <span>View Full Profile & Analytics</span>
+        <ChevronRight className="w-4 h-4" />
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// COMPONENT: PLAYER PROFILE MODAL
+// ==========================================
+function PlayerProfileModal({ player, onClose }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-[#0e1628] border border-slate-700/80 rounded-3xl shadow-2xl overflow-hidden my-8 p-6 text-slate-200">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white bg-slate-800/60 rounded-full hover:bg-slate-700 transition"
+        >
+          <X className="w-5 h-5" />
+        </button>
+
+        <div className="flex items-center space-x-4 mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-xl font-black text-white shadow-xl">
+            {player.avatarBadge}
+          </div>
+          <div>
+            <div className="flex items-center space-x-2">
+              <h3 className="text-2xl font-black text-white">{player.name}</h3>
+              <span className="text-xl">{player.flag}</span>
+            </div>
+            <p className="text-xs text-slate-400 font-medium">{player.role} • {player.team} • Age {player.age}</p>
+          </div>
+        </div>
+
+        {/* Live Match Tracker */}
+        {player.liveStatus && (
+          <div className="mb-6 bg-gradient-to-r from-purple-950/60 to-indigo-950/60 border border-purple-500/30 p-4 rounded-2xl">
+            <div className="flex items-center justify-between text-xs font-bold text-purple-300 mb-1">
+              <span className="flex items-center space-x-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-400 animate-ping"></span>
+                <span>IN-PLAY LIVE PERFORMANCE</span>
+              </span>
+              <span>{player.liveStatus.match}</span>
+            </div>
+            <p className="text-sm font-semibold text-white mt-1">
+              {player.sport === 'cricket' && `Batting on ${player.liveStatus.runs} runs off ${player.liveStatus.balls} balls.`}
+              {player.sport === 'football' && `Match Rating: ${player.liveStatus.rating} • Goals: ${player.liveStatus.goals} • Key Passes: 3`}
+              {player.sport === 'basketball' && `${player.liveStatus.pts} Points, ${player.careerStats.apg} Assists avg pace`}
+              {player.sport === 'tennis' && `${player.liveStatus.sets} • Serving at ${player.liveStatus.aces} Aces`}
+            </p>
+          </div>
+        )}
+
+        {/* Career Stats Grid */}
+        <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">All-Time Career Statistics</h4>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+          {Object.entries(player.careerStats).map(([key, val]) => (
+            <div key={key} className="bg-slate-900/70 p-3 rounded-xl border border-slate-800">
+              <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                {key.replace(/([A-Z])/g, ' $1')}
+              </span>
+              <span className="text-sm font-bold text-emerald-400 mt-0.5 block">{val}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent Form Guide */}
+        {player.recentScores && (
+          <div>
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Recent 5 Matches Form Guide</h4>
+            <div className="flex space-x-2">
+              {player.recentScores.map((score, idx) => (
+                <div key={idx} className="flex-1 bg-slate-900/60 border border-slate-800 p-2.5 rounded-xl text-center">
+                  <span className="text-[10px] text-slate-400 block mb-0.5">M-{idx + 1}</span>
+                  <span className="text-xs font-bold text-white font-mono">{score}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
