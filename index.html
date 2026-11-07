@@ -6,7 +6,7 @@
   <title>PulseSports | Live Scoreboard, Stats & Fixtures</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Lucide Icons -->
+  <!-- Lucide Icons CDN -->
   <script src="https://unpkg.com/lucide@latest"></script>
   <style>
     @keyframes pulse-fast {
@@ -18,7 +18,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950">
 
-  <!-- Navigation Bar -->
+  <!-- Header -->
   <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur border-b border-slate-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
       <div class="flex items-center space-x-3">
@@ -51,24 +51,24 @@
     </div>
   </header>
 
-  <!-- Main Content Layout -->
+  <!-- Main Content Area -->
   <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex-1 w-full">
-    <!-- Featured Headline Bar -->
+    <!-- Search / Filter Bar -->
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-900/80 to-slate-900/40 border border-slate-800">
       <div class="flex items-center space-x-3">
         <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
           <i data-lucide="radio" class="w-5 h-5 pulse-indicator"></i>
         </div>
         <div>
-          <h2 class="text-sm font-semibold text-slate-200">Real-Time Multi-Sport Engine</h2>
-          <p class="text-xs text-slate-400">Select any match to inspect the comprehensive scorecard, ball-by-ball / timeline, and player stats.</p>
+          <h2 class="text-sm font-semibold text-slate-200">Real-Time Multi-Sport Hub</h2>
+          <p class="text-xs text-slate-400">Live scorecards, ball-by-ball commentary, player stats, and upcoming fixtures.</p>
         </div>
       </div>
-      <div class="flex items-center gap-3">
+      <div>
         <input 
           id="search-input" 
           type="text" 
-          placeholder="Filter team, player or venue..." 
+          placeholder="Filter team, series or player..." 
           class="bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-64"
         />
       </div>
@@ -82,14 +82,14 @@
     <!-- Empty State -->
     <div id="empty-state" class="hidden text-center py-16">
       <i data-lucide="frown" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
-      <h3 class="text-base font-semibold text-slate-400">No matches found for this filter</h3>
-      <p class="text-xs text-slate-500 mt-1">Try switching sport or match phase.</p>
+      <h3 class="text-base font-semibold text-slate-400">No matches found for this selection</h3>
+      <p class="text-xs text-slate-500 mt-1">Try switching sport or match phase tabs.</p>
     </div>
   </main>
 
   <!-- Full Scorecard & Stats Modal -->
   <div id="modal-container" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center p-3 sm:p-6 overflow-y-auto">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden">
       
       <!-- Modal Header -->
       <div class="p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/90 sticky top-0 z-10">
@@ -108,20 +108,18 @@
       <!-- Modal Tabs -->
       <div class="flex border-b border-slate-800 bg-slate-950 px-5 text-sm font-medium gap-6">
         <button id="modal-tab-scorecard" class="py-3 text-emerald-400 border-b-2 border-emerald-400">Scorecard</button>
-        <button id="modal-tab-timeline" class="py-3 text-slate-400 hover:text-slate-200">Timeline / Commentary</button>
-        <button id="modal-tab-squads" class="py-3 text-slate-400 hover:text-slate-200">Squads & Lineups</button>
+        <button id="modal-tab-timeline" class="py-3 text-slate-400 hover:text-slate-200">Commentary & Key Events</button>
+        <button id="modal-tab-squads" class="py-3 text-slate-400 hover:text-slate-200">Playing XI & Squads</button>
       </div>
 
       <!-- Modal Body -->
       <div id="modal-content-area" class="p-5 sm:p-6 overflow-y-auto space-y-6 text-sm">
-        <!-- Injected via JavaScript based on selected sport -->
+        <!-- Injected via JavaScript based on match selection -->
       </div>
     </div>
   </div>
 
-  <!-- Database & Logic Script -->
   <script>
-    // --- Data Store ---
     const sports = [
       { id: 'all', name: 'All Sports', icon: 'layers' },
       { id: 'cricket', name: 'Cricket', icon: 'award' },
@@ -131,9 +129,9 @@
     ];
 
     const matchStatuses = [
-      { id: 'live', name: 'Live' },
+      { id: 'live', name: 'Live Now' },
       { id: 'past', name: 'Results / Past' },
-      { id: 'future', name: 'Fixtures / Upcoming' }
+      { id: 'future', name: 'Upcoming Fixtures' }
     ];
 
     const matches = [
@@ -142,37 +140,36 @@
         id: 'c1',
         sport: 'cricket',
         status: 'live',
-        series: 'ICC Men\'s T20 World Super 8',
-        venue: 'Kensington Oval, Bridgetown, Barbados',
-        teamA: { name: 'India', short: 'IND', score: '181/4', overs: '18.4', flag: '🇮🇳' },
-        teamB: { name: 'Australia', short: 'AUS', score: 'Yet to bat', overs: '0.0', flag: '🇦🇺' },
-        liveText: 'IND 181/4 (18.4) • CRR: 9.70 • Hardik Pandya 28*(15), Suryakumar Yadav 47(28)',
-        summary: 'India won the toss and elected to bat first',
+        series: 'T20 World Cup 2026 • Super 8s',
+        venue: 'Wankhede Stadium, Mumbai',
+        teamA: { name: 'India', short: 'IND', score: '188/4', overs: '18.4', flag: '🇮🇳' },
+        teamB: { name: 'Australia', short: 'AUS', score: '184/7', overs: '20.0', flag: '🇦🇺' },
+        liveText: 'IND need 5 runs in 8 balls • CRR: 10.07 • Virat Kohli 74*(48), Hardik 28*(14)',
+        summary: 'Australia won the toss and elected to bat first',
         scorecard: {
           batting: [
-            { name: 'Rohit Sharma (c)', dismiss: 'c Warner b Starc', runs: 24, balls: 14, f4: 3, f6: 1, sr: 171.4 },
-            { name: 'Virat Kohli', dismiss: 'b Hazlewood', runs: 37, balls: 28, f4: 4, f6: 0, sr: 132.1 },
-            { name: 'Rishabh Pant (wk)', dismiss: 'c Marsh b Zampa', runs: 20, balls: 11, f4: 1, f6: 2, sr: 181.8 },
-            { name: 'Suryakumar Yadav', dismiss: 'not out', runs: 47, balls: 28, f4: 5, f6: 2, sr: 167.8 },
-            { name: 'Shivam Dube', dismiss: 'c Maxwell b Cummins', runs: 18, balls: 10, f4: 1, f6: 1, sr: 180.0 },
-            { name: 'Hardik Pandya', dismiss: 'not out', runs: 28, balls: 15, f4: 2, f6: 2, sr: 186.6 }
+            { name: 'Rohit Sharma (c)', dismiss: 'c Warner b Starc', runs: 42, balls: 24, f4: 5, f6: 2, sr: 175.0 },
+            { name: 'Shubman Gill', dismiss: 'b Zampa', runs: 21, balls: 16, f4: 3, f6: 0, sr: 131.2 },
+            { name: 'Virat Kohli', dismiss: 'not out', runs: 74, balls: 48, f4: 6, f6: 3, sr: 154.1 },
+            { name: 'Suryakumar Yadav', dismiss: 'c Maxwell b Cummins', runs: 15, balls: 9, f4: 1, f6: 1, sr: 166.6 },
+            { name: 'Hardik Pandya', dismiss: 'not out', runs: 28, balls: 14, f4: 2, f6: 2, sr: 200.0 }
           ],
           bowling: [
-            { name: 'Mitchell Starc', o: 3.4, m: 0, r: 38, w: 1, econ: 10.36 },
-            { name: 'Josh Hazlewood', o: 4.0, m: 0, r: 28, w: 1, econ: 7.00 },
-            { name: 'Pat Cummins', o: 4.0, m: 0, r: 41, w: 1, econ: 10.25 },
-            { name: 'Adam Zampa', o: 4.0, m: 0, r: 35, w: 1, econ: 8.75 },
-            { name: 'Glenn Maxwell', o: 3.0, m: 0, r: 34, w: 0, econ: 11.33 }
+            { name: 'Mitchell Starc', o: 3.4, m: 0, r: 39, w: 2, econ: 10.6 },
+            { name: 'Josh Hazlewood', o: 4.0, m: 0, r: 40, w: 0, econ: 10.0 },
+            { name: 'Pat Cummins', o: 4.0, m: 0, r: 36, w: 1, econ: 9.00 },
+            { name: 'Adam Zampa', o: 4.0, m: 0, r: 41, w: 1, econ: 10.25 },
+            { name: 'Glenn Maxwell', o: 3.0, m: 0, r: 28, w: 0, econ: 9.33 }
           ]
         },
         commentary: [
-          '18.4 Starc to Hardik, 1 run, pushed down to long-on for an easy single.',
-          '18.3 Starc to Hardik, SIX! Short and pulled with authority deep over square leg!',
-          '18.2 Starc to Suryakumar, 1 run, worked gently off the pads towards mid-wicket.',
-          '18.1 Starc to Suryakumar, FOUR! Slices the yorker through backward point!'
+          '18.4 Starc to Hardik, 1 run, driven firmly towards extra cover.',
+          '18.3 Starc to Hardik, FOUR! Slashed away over backward point! Pure boundary masterclass.',
+          '18.2 Starc to Pant, OUT! Caught by Warner at deep midwicket.',
+          '18.1 Starc to Kohli, SIX! Steps out and launches Starc 96m into the stands!'
         ],
         squads: {
-          teamA: ['Rohit Sharma (c)', 'Virat Kohli', 'Rishabh Pant (wk)', 'Suryakumar Yadav', 'Shivam Dube', 'Hardik Pandya', 'Ravindra Jadeja', 'Axar Patel', 'Kuldeep Yadav', 'Arshdeep Singh', 'Jasprit Bumrah'],
+          teamA: ['Rohit Sharma (c)', 'Shubman Gill', 'Virat Kohli', 'Suryakumar Yadav', 'Rishabh Pant (wk)', 'Hardik Pandya', 'Ravindra Jadeja', 'Kuldeep Yadav', 'Jasprit Bumrah', 'Mohammed Siraj', 'Arshdeep Singh'],
           teamB: ['David Warner', 'Travis Head', 'Mitchell Marsh (c)', 'Glenn Maxwell', 'Marcus Stoinis', 'Tim David', 'Matthew Wade (wk)', 'Pat Cummins', 'Mitchell Starc', 'Adam Zampa', 'Josh Hazlewood']
         }
       },
@@ -182,29 +179,29 @@
         id: 'f1',
         sport: 'football',
         status: 'live',
-        series: 'UEFA Champions League Quarter-Final (2nd Leg)',
+        series: 'UEFA Champions League • Quarter-Final 2nd Leg',
         venue: 'Santiago Bernabéu, Madrid',
         teamA: { name: 'Real Madrid', short: 'RMA', score: '2', flag: '🇪🇸' },
         teamB: { name: 'Manchester City', short: 'MCI', score: '2', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-        liveText: '74\' • Agg: 5 - 5 • Bellingham 68\', Vinicius 34\' | Haaland 42\', De Bruyne 58\'',
-        summary: 'Intense end-to-end clash; extra time pending if level at full-time',
+        liveText: '78\' • Agg: 5 - 5 • Bellingham 72\', Vinícius 12\' | Haaland 41\', Foden 58\'',
+        summary: 'Aggregate tied 5-5 with 12 minutes remaining in regulation',
         stats: {
           possession: ['48%', '52%'],
-          shots: ['14', '18'],
-          shotsOnTarget: ['6', '8'],
-          xG: ['1.84', '2.10'],
-          corners: ['5', '9']
+          shots: ['14', '15'],
+          shotsOnTarget: ['6', '7'],
+          xG: ['1.84', '1.92'],
+          corners: ['5', '8']
         },
         events: [
-          '74\' Yellow Card: Dani Carvajal (RMA)',
-          '68\' GOAL! Jude Bellingham fires low into the bottom-right corner! (2-2)',
-          '58\' GOAL! Kevin De Bruyne curls a stunner from outside the box! (1-2)',
-          '42\' GOAL! Erling Haaland headers home from a Jack Grealish cross. (1-1)',
-          '34\' GOAL! Vinicius Jr finishes on the counter-attack! (1-0)'
+          '72\' GOAL! Jude Bellingham taps in the rebound from close range! (2-2)',
+          '58\' GOAL! Phil Foden curls a beauty into the top-left corner! (1-2)',
+          '41\' GOAL! Erling Haaland headers home from Kevin De Bruyne\'s cross! (1-1)',
+          '28\' Yellow Card: Rodri (tactical foul)',
+          '12\' GOAL! Vinícius Jr slots home on the breakaway counter! (1-0)'
         ],
         squads: {
-          teamA: ['Courtois (GK)', 'Carvajal', 'Rüdiger', 'Militao', 'Mendy', 'Valverde', 'Camavinga', 'Kroos', 'Bellingham', 'Rodrygo', 'Vinicius Jr'],
-          teamB: ['Ederson (GK)', 'Walker', 'Dias', 'Akanji', 'Gvardiol', 'Rodri', 'De Bruyne', 'Bernardo Silva', 'Foden', 'Grealish', 'Haaland']
+          teamA: ['Courtois (GK)', 'Carvajal', 'Rüdiger', 'Militao', 'Mendy', 'Valverde', 'Camavinga', 'Bellingham', 'Rodrygo', 'Mbappé', 'Vinícius Jr'],
+          teamB: ['Ederson (GK)', 'Walker', 'Dias', 'Akanji', 'Gvardiol', 'Rodri', 'De Bruyne', 'Bernardo Silva', 'Foden', 'Doku', 'Haaland']
         }
       },
 
@@ -213,25 +210,19 @@
         id: 'b1',
         sport: 'basketball',
         status: 'live',
-        series: 'NBA Finals - Game 4',
-        venue: 'TD Garden, Boston, MA',
-        teamA: { name: 'Boston Celtics', short: 'BOS', score: '98', flag: '☘️' },
-        teamB: { name: 'Dallas Mavericks', short: 'DAL', score: '94', flag: '🐴' },
-        liveText: 'Q4 • 03:42 Remaining • Tatum 31 pts, Doncic 34 pts',
-        summary: 'Celtics on a 7-0 run to reclaim the 4th-quarter lead',
+        series: 'NBA 2025-26 • Regular Season',
+        venue: 'Chase Center, San Francisco',
+        teamA: { name: 'GS Warriors', short: 'GSW', score: '112', flag: '🌉' },
+        teamB: { name: 'LA Lakers', short: 'LAL', score: '108', flag: '👑' },
+        liveText: 'Q4 • 03:24 • Curry 34 pts, 8 ast | LeBron 28 pts, 9 reb',
+        summary: 'Warriors lead by 4 heading into the final three minutes',
         boxScore: [
-          { team: 'BOS', q1: 26, q2: 24, q3: 25, q4: 23, total: 98 },
-          { team: 'DAL', q1: 28, q2: 23, q3: 24, q4: 19, total: 94 }
-        ],
-        topPlayers: [
-          { name: 'Jayson Tatum (BOS)', pts: 31, reb: 9, ast: 6, fg: '11/22' },
-          { name: 'Jaylen Brown (BOS)', pts: 22, reb: 5, ast: 4, fg: '9/17' },
-          { name: 'Luka Doncic (DAL)', pts: 34, reb: 11, ast: 9, fg: '12/25' },
-          { name: 'Kyrie Irving (DAL)', pts: 24, reb: 3, ast: 5, fg: '10/20' }
+          { team: 'GSW', q1: 28, q2: 30, q3: 29, q4: 25, total: 112 },
+          { team: 'LAL', q1: 26, q2: 32, q3: 24, q4: 26, total: 108 }
         ],
         squads: {
-          teamA: ['Jayson Tatum', 'Jaylen Brown', 'Kristaps Porzingis', 'Jrue Holiday', 'Derrick White', 'Al Horford', 'Payton Pritchard'],
-          teamB: ['Luka Doncic', 'Kyrie Irving', 'PJ Washington', 'Daniel Gafford', 'Derrick Jones Jr', 'Dereck Lively II', 'Josh Green']
+          teamA: ['Stephen Curry', 'Klay Thompson', 'Andrew Wiggins', 'Draymond Green', 'Kevon Looney', 'Jonathan Kuminga', 'Brandin Podziemski'],
+          teamB: ['D\'Angelo Russell', 'Austin Reaves', 'LeBron James', 'Rui Hachimura', 'Anthony Davis', 'Spencer Dinwiddie', 'Christian Wood']
         }
       },
 
@@ -240,15 +231,15 @@
         id: 'c2',
         sport: 'cricket',
         status: 'past',
-        series: 'Border-Gavaskar Trophy - 5th Test',
-        venue: 'Sydney Cricket Ground',
-        teamA: { name: 'Australia', short: 'AUS', score: '338 & 212', flag: '🇦🇺' },
-        teamB: { name: 'India', short: 'IND', score: '244 & 308/7', flag: '🇮🇳' },
-        liveText: 'India won by 3 wickets',
-        summary: 'Player of the Match: Rishabh Pant (89* off 138 balls)',
+        series: 'IPL 2026 • Final',
+        venue: 'Narendra Modi Stadium, Ahmedabad',
+        teamA: { name: 'CSK', short: 'CSK', score: '192/5 (20.0)', flag: '🦁' },
+        teamB: { name: 'MI', short: 'MI', score: '179/9 (20.0)', flag: '🔵' },
+        liveText: 'CSK won by 13 runs • POTM: Ruturaj Gaikwad (78 off 45)',
+        summary: 'Chennai Super Kings claim another IPL title defense',
         squads: {
-          teamA: ['Warner', 'Pucovski', 'Labuschagne', 'Smith', 'Wade', 'Green', 'Paine (c/wk)', 'Cummins', 'Starc', 'Lyon', 'Hazlewood'],
-          teamB: ['Rohit', 'Gill', 'Pujara', 'Rahane (c)', 'Agarwal', 'Pant (wk)', 'Sundar', 'Thakur', 'Navdeep', 'Siraj', 'Natarajan']
+          teamA: ['Ruturaj Gaikwad (c)', 'Rachin Ravindra', 'Shivam Dube', 'MS Dhoni', 'Ravindra Jadeja', 'Deepak Chahar', 'Matheesha Pathirana'],
+          teamB: ['Rohit Sharma', 'Ishan Kishan', 'Suryakumar Yadav', 'Hardik Pandya (c)', 'Tim David', 'Jasprit Bumrah', 'Gerald Coetzee']
         }
       },
 
@@ -257,15 +248,32 @@
         id: 'f2',
         sport: 'football',
         status: 'past',
-        series: 'Premier League Matchday 34',
+        series: 'Premier League • Matchday 32',
         venue: 'Emirates Stadium, London',
         teamA: { name: 'Arsenal', short: 'ARS', score: '3', flag: '🔴' },
-        teamB: { name: 'Chelsea', short: 'CHE', score: '1', flag: '🔵' },
-        liveText: 'Full Time • Odegaard 18\', 31\', Jesus 34\' | Madueke 65\'',
-        summary: 'Arsenal dominate North London derby counterpart to stay in title race',
+        teamB: { name: 'Liverpool', short: 'LIV', score: '1', flag: '🔴' },
+        liveText: 'Full Time • Saka 14\', Martinelli 67\', Trossard 90+2\' | Gabriel (OG) 45+3\'',
+        summary: 'Arsenal claim key 3 points at home',
         squads: {
-          teamA: ['Ramsdale', 'White', 'Kiwior', 'Gabriel', 'Zinchenko', 'Jorginho', 'Xhaka', 'Odegaard', 'Saka', 'Trossard', 'Jesus'],
-          teamB: ['Kepa', 'Azpilicueta', 'Fofana', 'Silva', 'Chilwell', 'Kante', 'Fernandez', 'Kovacic', 'Madueke', 'Aubameyang', 'Sterling']
+          teamA: ['Raya', 'White', 'Saliba', 'Gabriel', 'Zinchenko', 'Rice', 'Jorginho', 'Odegaard', 'Saka', 'Havertz', 'Martinelli'],
+          teamB: ['Alisson', 'Alexander-Arnold', 'Konate', 'Van Dijk', 'Robertson', 'Mac Allister', 'Jones', 'Szoboszlai', 'Salah', 'Nunez', 'Diaz']
+        }
+      },
+
+      // Future Fixture (Cricket)
+      {
+        id: 'c3',
+        sport: 'cricket',
+        status: 'future',
+        series: 'T20 World Cup 2026 • Semi Final 1',
+        venue: 'Eden Gardens, Kolkata',
+        teamA: { name: 'England', short: 'ENG', score: '-', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
+        teamB: { name: 'South Africa', short: 'SA', score: '-', flag: '🇿🇦' },
+        liveText: 'Starts Tomorrow at 19:00 IST • Pitch: Fresh surface with good bounce',
+        summary: 'Winner advances to the Grand Final',
+        squads: {
+          teamA: ['Jos Buttler (c/wk)', 'Phil Salt', 'Harry Brook', 'Liam Livingstone', 'Sam Curran', 'Moeen Ali', 'Adil Rashid', 'Jofra Archer', 'Mark Wood'],
+          teamB: ['Aiden Markram (c)', 'Quinton de Kock (wk)', 'Heinrich Klaasen', 'David Miller', 'Tristan Stubbs', 'Marco Jansen', 'Kagiso Rabada', 'Anrich Nortje']
         }
       },
 
@@ -275,43 +283,24 @@
         sport: 'tennis',
         status: 'future',
         series: 'Wimbledon Men\'s Singles Final',
-        venue: 'Centre Court, All England Club, London',
+        venue: 'Centre Court, London',
         teamA: { name: 'Carlos Alcaraz', short: 'ALC', score: '-', flag: '🇪🇸' },
         teamB: { name: 'Jannik Sinner', short: 'SIN', score: '-', flag: '🇮🇹' },
-        liveText: 'Starts Tomorrow at 14:00 BST • Surface: Grass',
-        summary: 'Head-to-Head: Tied 4-4 across Grand Slam and Masters events',
+        liveText: 'Starts Sunday at 14:00 BST • Surface: Grass',
+        summary: 'World #1 vs World #2 showdown',
         squads: {
-          teamA: ['Carlos Alcaraz (World No. 2, Seed 2)'],
-          teamB: ['Jannik Sinner (World No. 1, Seed 1)']
-        }
-      },
-
-      // Future Fixture (Cricket)
-      {
-        id: 'c3',
-        sport: 'cricket',
-        status: 'future',
-        series: 'ICC Champions Trophy 2026',
-        venue: 'Eden Gardens, Kolkata',
-        teamA: { name: 'India', short: 'IND', score: '-', flag: '🇮🇳' },
-        teamB: { name: 'England', short: 'ENG', score: '-', flag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿' },
-        liveText: 'Starts Friday, Nov 13 • 14:00 IST',
-        summary: 'Pitch Report: Expected high-scoring deck with initial swing under lights',
-        squads: {
-          teamA: ['Rohit Sharma (c)', 'Shubman Gill', 'Virat Kohli', 'Shreyas Iyer', 'KL Rahul (wk)', 'Hardik Pandya', 'Ravindra Jadeja', 'Kuldeep Yadav', 'Jasprit Bumrah', 'Mohammed Siraj', 'Arshdeep Singh'],
-          teamB: ['Jos Buttler (c/wk)', 'Phil Salt', 'Will Jacks', 'Harry Brook', 'Liam Livingstone', 'Sam Curran', 'Adil Rashid', 'Jofra Archer', 'Mark Wood', 'Reece Topley', 'Gus Atkinson']
+          teamA: ['Carlos Alcaraz (ESP) - Seed #2'],
+          teamB: ['Jannik Sinner (ITA) - Seed #1']
         }
       }
     ];
 
-    // --- State ---
     let currentSport = 'all';
     let currentStatus = 'live';
     let searchQuery = '';
     let selectedMatch = null;
     let activeModalTab = 'scorecard';
 
-    // --- DOM Elements ---
     const sportTabsContainer = document.getElementById('sport-tabs');
     const statusTabsContainer = document.getElementById('status-tabs');
     const matchesGrid = document.getElementById('matches-grid');
@@ -320,9 +309,7 @@
     const modal = document.getElementById('modal-container');
     const modalCloseBtn = document.getElementById('modal-close-btn');
 
-    // --- Render Filter Tabs ---
     function renderFilters() {
-      // Sports Tabs
       sportTabsContainer.innerHTML = sports.map(s => {
         const active = currentSport === s.id;
         return `
@@ -340,7 +327,6 @@
         `;
       }).join('');
 
-      // Status Tabs
       statusTabsContainer.innerHTML = matchStatuses.map(st => {
         const active = currentStatus === st.id;
         return `
@@ -361,7 +347,6 @@
       lucide.createIcons();
     }
 
-    // --- Filter Handlers ---
     window.selectSport = (id) => {
       currentSport = id;
       renderFilters();
@@ -379,7 +364,6 @@
       renderMatches();
     });
 
-    // --- Render Match Cards ---
     function renderMatches() {
       const filtered = matches.filter(m => {
         const matchSport = currentSport === 'all' || m.sport === currentSport;
@@ -408,7 +392,6 @@
             class="group cursor-pointer rounded-2xl bg-slate-900 border border-slate-800 p-5 hover:border-emerald-500/50 hover:shadow-xl hover:shadow-emerald-500/5 transition duration-200 flex flex-col justify-between"
           >
             <div>
-              <!-- Header -->
               <div class="flex items-center justify-between text-xs text-slate-400 mb-3">
                 <span class="font-medium truncate max-w-[200px] text-slate-300">${m.series}</span>
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase ${
@@ -422,7 +405,6 @@
                 </span>
               </div>
 
-              <!-- Teams & Scores -->
               <div class="space-y-3 my-4">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-2.5">
@@ -442,7 +424,6 @@
               </div>
             </div>
 
-            <!-- Footer summary -->
             <div class="pt-3 border-t border-slate-800/80 text-xs">
               <p class="text-emerald-400 font-medium truncate">${m.liveText}</p>
               <p class="text-slate-500 text-[11px] mt-0.5 flex items-center gap-1 truncate">
@@ -456,7 +437,6 @@
       lucide.createIcons();
     }
 
-    // --- Modal Management ---
     window.openMatchModal = (id) => {
       selectedMatch = matches.find(m => m.id === id);
       if (!selectedMatch) return;
@@ -484,8 +464,7 @@
 
     function setModalTab(tab) {
       activeModalTab = tab;
-      const tabs = ['scorecard', 'timeline', 'squads'];
-      tabs.forEach(t => {
+      ['scorecard', 'timeline', 'squads'].forEach(t => {
         const el = document.getElementById(`modal-tab-${t}`);
         if (t === tab) {
           el.className = 'py-3 text-emerald-400 border-b-2 border-emerald-400 font-semibold';
@@ -577,7 +556,7 @@
         } else if (m.sport === 'football' && m.stats) {
           container.innerHTML = `
             <div class="space-y-4">
-              <h4 class="font-bold text-slate-200">Match Statistics & Indicators</h4>
+              <h4 class="font-bold text-slate-200">Match Statistics</h4>
               ${Object.keys(m.stats).map(key => {
                 const valA = m.stats[key][0];
                 const valB = m.stats[key][1];
@@ -600,7 +579,7 @@
         } else if (m.sport === 'basketball' && m.boxScore) {
           container.innerHTML = `
             <div class="space-y-5">
-              <h4 class="font-bold text-slate-200">Quarter By Quarter Scoring</h4>
+              <h4 class="font-bold text-slate-200">Quarter Scoring</h4>
               <div class="overflow-x-auto rounded-xl border border-slate-800">
                 <table class="w-full text-center text-xs font-mono">
                   <thead class="bg-slate-950 text-slate-400 border-b border-slate-800">
@@ -632,7 +611,7 @@
         } else {
           container.innerHTML = `
             <div class="p-8 text-center text-slate-500">
-              <p>Full match score breakdown will be unlocked as soon as play begins.</p>
+              <p>Full match score breakdown will be unlocked once play begins.</p>
               <p class="text-xs text-slate-600 mt-2">${m.summary}</p>
             </div>
           `;
@@ -651,7 +630,7 @@
             </div>
           `;
         } else {
-          container.innerHTML = `<p class="text-center text-slate-500 py-8">No live commentary feeds registered yet for this match.</p>`;
+          container.innerHTML = `<p class="text-center text-slate-500 py-8">No live commentary feeds registered yet for this fixture.</p>`;
         }
       } else if (activeModalTab === 'squads') {
         container.innerHTML = `
@@ -679,14 +658,13 @@
       lucide.createIcons();
     }
 
-    // --- Periodic Simulation Ticker (Simulates Active Sports API) ---
+    // Dynamic Live Simulation Ticker
     setInterval(() => {
-      // Simulate live cricket run ticker
       const cricketMatch = matches.find(m => m.id === 'c1');
       if (cricketMatch && Math.random() > 0.4) {
-        const runs = [1, 2, 4, 6, 0][Math.floor(Math.random() * 5)];
-        const currentRuns = parseInt(cricketMatch.teamA.score.split('/')[0]) + runs;
-        cricketMatch.teamA.score = `${currentRuns}/4`;
+        const added = [1, 2, 4, 6, 0][Math.floor(Math.random() * 5)];
+        const currentScore = parseInt(cricketMatch.teamA.score.split('/')[0]) + added;
+        cricketMatch.teamA.score = `${currentScore}/4`;
         if (currentStatus === 'live' && (currentSport === 'all' || currentSport === 'cricket')) {
           renderMatches();
           if (selectedMatch && selectedMatch.id === 'c1' && activeModalTab === 'scorecard') {
@@ -696,7 +674,6 @@
       }
     }, 4000);
 
-    // Initial Execution
     renderFilters();
     renderMatches();
   </script>
